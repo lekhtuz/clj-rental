@@ -15,19 +15,25 @@
             [hiccup.middleware :refer [wrap-base-url]]
             [rental.routes.home :as home :refer [home-routes]]
             [rental.auth :as auth :refer [authenticate]]
+            [rental.schema :as schema]
             [rental.middleware :refer [wrap-log-request-response]]
   )
 )
 
 (defn init []
-  (log/info "rental is starting"))
+  (log/info "rental is starting")
+  (schema/start)
+)
 
 (defn destroy []
-  (log/info "rental is shutting down"))
+  (log/info "rental is shutting down")
+  (schema/stop)
+)
 
 (defroutes app-routes
   (route/resources "/")
-  (route/not-found "Not Found"))
+  (route/not-found "Not Found")
+)
 
 (defroutes myroutes home-routes app-routes)
 
