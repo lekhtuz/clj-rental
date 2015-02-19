@@ -1,5 +1,6 @@
 (ns rental.views.layout
-  (:require [hiccup.page :refer [html5 include-css]]))
+  (:require [hiccup.page :refer [html5 include-css]])
+)
 
 (defn common [& body]
   (html5

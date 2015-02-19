@@ -1,0 +1,4 @@
+{ 
+ :db-url "datomic:dev://localhost:4334/rental"
+ :db-schema "schema.edn"
+}

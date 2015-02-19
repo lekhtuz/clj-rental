@@ -5,6 +5,7 @@
             [clojure.pprint :refer [pprint]]
             [clojure.tools.logging :as log :refer [info]]
             [rental.auth :as auth]
+            [rental.schema :as schema]
             [rental.views.layout :as layout]
             [rental.views.login :refer [login-box]]
             [cemerick.friend :as friend]
@@ -52,5 +53,10 @@
   (GET "/" request (home request))
   (GET "/login" request (login))
   (POST "/login" [username password] (do-login username password))
+  (context "/schema" []
+    (GET "/" request (schema/maintenance))
+    (GET "/create" request (schema/create-database))
+    (GET "/delete" request (schema/delete-database))
+  )
   (friend/logout (ANY "/logout" request (ring.util.response/redirect "/")))
 )

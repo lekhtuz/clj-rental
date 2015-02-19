@@ -1,6 +1,6 @@
 (ns rental.views.login
-  (:require [hiccup.page]
-            [hiccup.element :as h-e :refer [link-to]]
+  (:require
+    [hiccup.element :as h-e :refer [link-to]]
   )
 )
 

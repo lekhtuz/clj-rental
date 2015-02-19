@@ -1,0 +1,41 @@
+[
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/userid
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "Userid - integer"
+  :db/unique :db.unique/value
+  :db/index true
+  :db.install/_attribute :db.part/db
+ }
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/username
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Username - string"
+  :db/unique :db.unique/value
+  :db/index true
+  :db.install/_attribute :db.part/db
+ }
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/password
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Password - string"
+  :db.install/_attribute :db.part/db
+ }
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/type
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc "User type"
+  :db.install/_attribute :db.part/db
+ }
+ [:db/add #db/id[:db.part/user] :db/ident :rental.schema.type/admin]
+ [:db/add #db/id[:db.part/user] :db/ident :rental.schema.type/landlord]
+ [:db/add #db/id[:db.part/user] :db/ident :rental.schema.type/user]
+]

@@ -10,6 +10,7 @@
                  [ring-server "0.3.1"]
                  [com.datomic/datomic-pro "0.9.5130" :exclusions [joda-time org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [ch.qos.logback/logback-classic "1.1.2"]
+                 [sonian/carica "1.1.0" :exclusions [cheshire]]
                 ]
   :jvm-opts ^:replace ["-Xmx1g" "-server"]
   :plugins [[lein-ring "0.8.13"]]

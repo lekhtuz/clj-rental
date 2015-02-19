@@ -14,9 +14,19 @@ To start a web server for the application, run:
 
     lein ring server
 
+Create uberwar:
+lein ring uberwar
+
+Remove all attributes from web.xml <webapp> tag before copying to resin/webapps folder
+
+Connect to repl:
+lein repl :connect localhost:3001
+
 ## License
 
 Copyright © 2015 FIXME
+
+## Git commands
 
 git init
 git add --all *
@@ -24,3 +34,9 @@ git commit -m "first commit"
 git remote add -m dev origin https://github.com/lekhtuz/rental.git
 git branch --set-upstream-to=origin/dev master
 git push origin HEAD:dev
+
+
+## Start datomic transactor:
+
+cd /Users/lekhdm/java/datomic-pro-0.9.5130
+bin/transactor ./config/samples/dev-transactor-template.properties
