@@ -40,3 +40,20 @@ git push origin HEAD:dev
 
 cd /Users/lekhdm/java/datomic-pro-0.9.5130
 bin/transactor ./config/samples/dev-transactor-template.properties
+
+## Datomic connection test
+
+https://groups.google.com/forum/#!topic/datomic/1WBgM84nKmc
+Can not delete and immediately create database, name is not available for 1 minute.
+
+(use '[clojure.edn :refer [read-string]])
+(use '[carica.core :as cc])
+(use '[datomic.api :as d])
+(def uri "datomic:dev://localhost:4334/rental")
+(def schema (read-string {:readers *data-readers*} (slurp (first (cc/resources "schema.edn")))))
+(println schema)
+(d/delete-database uri)
+(d/create-database uri)
+(def conn (d/connect uri))
+@(d/transact (d/connect uri) schema)
+

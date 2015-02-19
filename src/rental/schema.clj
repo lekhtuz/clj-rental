@@ -1,5 +1,6 @@
 (ns rental.schema
-  (:require 
+  (:require
+    [clojure.edn :refer [read-string]]
     [clojure.pprint :refer [pprint]]
     [clojure.tools.logging :as log :refer [info]]
     [datomic.api :as d]
@@ -11,6 +12,11 @@
 )
 
 (def *uri* (cc/config :db-url))
+
+; Attribute map added as per https://groups.google.com/forum/#!topic/datomic/aPtVB1ntqIQ
+; Otherwise clojure.edn/read-string throws "No reader function for tag db/id" message
+; Regular read-string works just fine witout attributes
+(def schema-fn (read-string {:readers *data-readers*} (slurp (first (cc/resources "schema.edn")))))
 
 (def menu
   [
@@ -24,7 +30,7 @@
 )
 
 (defn stop []
-  (log/info "Stoping db" *uri* "...")
+  (log/info "Stopping db" *uri* "...")
 )
 
 (defn maintenance []
@@ -42,7 +48,13 @@
 
 (defn create-database []
   (if (d/create-database *uri*)
-    (log/info "database" *uri* "created.")
+    (do
+      (log/info "database" *uri* "created.")
+      (log/info "Adding schema:" schema-fn)
+      (log/info "Connection:" (d/connect *uri*))
+      @(d/transact (d/connect *uri*) schema-fn)
+      (log/info "Schema added.")
+    )
     (log/info "database" *uri* "already exists.")
   )
   (ring.util.response/redirect "/schema")

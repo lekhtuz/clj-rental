@@ -20,14 +20,14 @@
          :destroy rental.handler/destroy
          :nrepl {:start? true :port 3001}
         }
-  :profiles
-  {:uberjar {:aot :all}
-   :production
-   {:ring
-    {:open-browser? false, :stacktraces? false, :auto-reload? false}}
-   :dev
-   {:dependencies [[ring-mock "0.1.5"] [ring/ring-devel "1.3.1"]]
-    :open-browser? false, :stacktraces? true, :auto-reload? true
-   }
-  }
+  :profiles {
+             :uberjar {:aot :all}
+             :production
+             {:ring
+              {:open-browser? false, :stacktraces? false, :auto-reload? false}}
+             :dev
+             {:dependencies [[ring-mock "0.1.5"] [ring/ring-devel "1.3.1"]]
+              :open-browser? false, :stacktraces? true, :auto-reload? true
+             }
+            }
 )
