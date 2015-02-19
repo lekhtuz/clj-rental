@@ -11,3 +11,5 @@
 .lein-env
 .lein-repl-history
 /bin
+/.nrepl-port
+/log
