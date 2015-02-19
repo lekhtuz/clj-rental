@@ -64,7 +64,9 @@
   <logger name="org.apache.tomcat.jdbc.pool" level="INFO"/>
 
   <root level="info">
+  <!-- 
     <appender-ref ref="MAIN"/>
+  -->
     <appender-ref ref="STDOUT"/>
   </root>
 </configuration>
