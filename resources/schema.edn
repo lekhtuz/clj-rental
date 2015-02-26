@@ -29,13 +29,22 @@
  }
  {
   :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema/type
+  :db/ident :rental.schema/usertype
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one
   :db/doc "User type"
   :db.install/_attribute :db.part/db
  }
- [:db/add #db/id[:db.part/user] :db/ident :rental.schema.type/admin]
- [:db/add #db/id[:db.part/user] :db/ident :rental.schema.type/landlord]
- [:db/add #db/id[:db.part/user] :db/ident :rental.schema.type/user]
+ {
+  :db/id #db/id[:db.part/user]
+  :db/ident :rental.schema.usertype/admin
+ }
+ {
+  :db/id #db/id[:db.part/user]
+  :db/ident :rental.schema.usertype/landlord
+ }
+ {
+  :db/id #db/id[:db.part/user]
+  :db/ident :rental.schema.usertype/user
+ }
 ]

@@ -1,0 +1,31 @@
+[
+ ; Default admin account
+ {
+	 :db/id #db/id[:db.part/user]
+	 :rental.schema/usertype :rental.schema.usertype/admin
+	 :rental.schema/username "admin"
+	 :rental.schema/password "password"
+ }
+
+ ; Demo accounts
+ {
+	 :db/id #db/id[:db.part/user]
+	 :rental.schema/usertype :rental.schema.usertype/admin
+	 :rental.schema/username "demo-admin"
+	 :rental.schema/password "password"
+ }
+
+ {
+	 :db/id #db/id[:db.part/user]
+	 :rental.schema/usertype :rental.schema.usertype/landlord
+	 :rental.schema/username "demo-landlord"
+	 :rental.schema/password "password"
+ }
+
+ {
+	 :db/id #db/id[:db.part/user]
+	 :rental.schema/usertype :rental.schema.usertype/user
+	 :rental.schema/username "demo-user"
+	 :rental.schema/password "password"
+ }
+]
