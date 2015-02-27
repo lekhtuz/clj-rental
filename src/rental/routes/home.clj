@@ -22,11 +22,17 @@
   (log/info "home-authenticated function called. :friend/identity = " identity)
   (log/info "home-authenticated function called. current-authentication = " (friend/current-authentication))
   (log/info "home-authenticated function called. friend/authorized? #{:rental.auth/role-admin} identity = " (friend/authorized? #{:rental.auth/role-admin} identity))
-  (log/info "home-authenticated function called. friend/authorized? #{:rental.auth/role-user} identity = " (friend/authorized? #{:rental.auth/role-user} identity))
-  (if (friend/authorized? #{:rental.auth/role-admin} identity)
-    (layout/common (h/html [:h1 "Logged-in admin"]))
-    (layout/common (h/html [:h1 "Logged-in user"]))
+  (log/info "home-authenticated function called. friend/authorized? #{:rental.auth/role-landlord} identity = " (friend/authorized? #{:rental.auth/role-landlord} identity))
+  (log/info "home-authenticated function called. friend/authorized? #{:rental.auth/role-tenant} identity = " (friend/authorized? #{:rental.auth/role-tenant} identity))
+  (condp friend/authorized? identity
+         #{:rental.auth/role-admin} (layout/common (h/html [:h1 "Logged-in admin"]))
+         #{:rental.auth/role-landlord} (layout/common (h/html [:h1 "Logged-in landlord"]))
+         #{:rental.auth/role-tenant} (layout/common (h/html [:h1 "Logged-in tenant"]))
   )
+;  (if (friend/authorized? #{:rental.auth/role-admin} identity)
+;    (layout/common (h/html [:h1 "Logged-in admin"]))
+;    (layout/common (h/html [:h1 "Logged-in user"]))
+;  )
 )
 
 (defn home [request]

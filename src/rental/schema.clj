@@ -12,16 +12,33 @@
   )
 )
 
-(def insert-admin '({:db/id #db/id[:db.part/user] :rental.schema/usertype :rental.schema.usertype/admin :rental.schema/username "admin" :rental.schema/password "password"}))
+;(def insert-admin '({:db/id #db/id[:db.part/user] :rental.schema/usertype :rental.schema.usertype/admin :rental.schema/username "admin" :rental.schema/password "password"}))
 
 (def uri (cc/config :db-url))
+
+; Retrieve connection every time it is needed. It is cached internally, so it's cheap.
+(defn conn []
+  (log/info "Connection request received. Calling d/connect...")
+  (let [c (d/connect uri)]
+    (log/info "Connection retrieved" c)
+    c
+  )
+)
+(defn db []
+  (log/info "Database request received. Calling d/db...")
+  (let [d (d/db (conn))]
+    (log/info "Database retrieved" d)
+    d
+  )
+)
+(defn db [] (d/db (conn)))
 
 ; Attribute map added as per https://groups.google.com/forum/#!topic/datomic/aPtVB1ntqIQ
 ; Otherwise clojure.edn/read-string throws "No reader function for tag db/id" message
 ; Regular read-string works just fine witout attributes
-(def schema-tx (read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config :config)))))
+(def schema-tx (read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config :schema))))))
 (def setup-data-tx (read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config :setup-data))))))
-(def setup-data-encrypted-passwords-tx (map #(assoc % :rental.schema/password (creds/hash-bcrypt (:rental.schema/password %))) setup-data-tx))
+(def setup-data-encrypted-passwords-tx (map #(assoc % ::password (creds/hash-bcrypt (::password %))) setup-data-tx))
   
 (def menu
   [
@@ -45,7 +62,7 @@
    [:br]
    "URI=" uri
    [:br]
-   "Schema file=" (cc/config :db-schema)
+   "Schema file=" (cc/config :schema)
    [:br]
    (h-e/unordered-list menu)
  )
@@ -56,10 +73,10 @@
     (do
       (log/info "database" uri "created.")
       (log/info "Adding schema:" schema-tx)
-      (log/info "Connection:" (d/connect uri))
-      @(d/transact (d/connect uri) schema-tx)
+      (log/info "Connection:" (conn))
+      @(d/transact (conn) schema-tx)
       (log/info "Schema added.")
-      @(d/transact (d/connect uri) setup-data-encrypted-passwords-tx)
+      @(d/transact (conn) setup-data-encrypted-passwords-tx)
       (log/info "Setup data added.")
     )
     (log/info "database" uri "already exists.")

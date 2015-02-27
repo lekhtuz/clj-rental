@@ -24,8 +24,8 @@
 
  {
 	 :db/id #db/id[:db.part/user]
-	 :rental.schema/usertype :rental.schema.usertype/user
-	 :rental.schema/username "demo-user"
+	 :rental.schema/usertype :rental.schema.usertype/tenant
+	 :rental.schema/username "demo-tenant"
 	 :rental.schema/password "password"
  }
 ]
