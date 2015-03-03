@@ -19,7 +19,7 @@
         [:td {:colspan 2 :align "center"} [:input {:type "submit" :value "Login"}]]
       ]
     ]
-    [:br] (h-e/link-to "/signup" "Landlord signup")
+    [:br] (h-e/link-to "/lregister" "Landlord signup")
     [:br] (h-e/link-to "/forgotusername" "Forgot username")
     [:br] (h-e/link-to "/forgotpassword" "Forgot password")
   ]

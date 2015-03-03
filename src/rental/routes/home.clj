@@ -29,9 +29,9 @@
   (log/info "home-authenticated function called. friend/authorized? #{:rental.auth/role-landlord} identity = " (friend/authorized? #{:rental.auth/role-landlord} identity))
   (log/info "home-authenticated function called. friend/authorized? #{:rental.auth/role-tenant} identity = " (friend/authorized? #{:rental.auth/role-tenant} identity))
   (condp friend/authorized? identity
-         #{:rental.auth/role-admin} (resp/redirect "/admin")
-         #{:rental.auth/role-landlord} (resp/redirect "/landlord")
-         #{:rental.auth/role-tenant} (resp/redirect "/tenant")
+    #{:rental.auth/role-admin} (resp/redirect "/admin")
+    #{:rental.auth/role-landlord} (resp/redirect "/landlord")
+    #{:rental.auth/role-tenant} (resp/redirect "/tenant")
   )
 )
 
@@ -69,6 +69,8 @@
   (GET "/" request (home request))
   (GET "/login" request (login))
   (POST "/login" [username password] (do-login username password))
+  (GET "/lregister" request (landlord/register))
+  (POST "/lregister" [username password firstname lastname] (landlord/register username password firstname lastname))
   (context "/admin" request (friend/wrap-authorize admin-routes #{:rental.auth/role-admin}))
   (context "/landlord" request (friend/wrap-authorize landlord-routes #{:rental.auth/role-landlord}))
   (context "/tenant" request (friend/wrap-authorize tenant-routes #{:rental.auth/role-tenant}))
