@@ -1,26 +1,27 @@
 (ns rental.views.login
   (:require
-    [hiccup.element :as h-e :refer [link-to]]
+    [hiccup.element :refer [link-to]]
+    [hiccup.form :refer [form-to text-field password-field submit-buttom]]
   )
 )
 
 (defn login-box []
-  [:form {:method "POST" :action "login" :class ""}
+  (form-to [ :post "/login" ]
     [:table
       [:tr
-        [:td { :class "left-td-label" } "Username" ]
-        [:td { :class "right-td-field" } [:input {:type "text" :name "username"}] ]
+        [:td {:class "left-td-label"} (label "username" "Username") ]
+        [:td {:class "right-td-field"} (text-field "username")] 
       ]
       [:tr
-        [:td { :class "left-td-label" } "Password" ]
-        [:td { :class "right-td-field" } [:input {:type "password" :name "password"}] ]
+        [:td {:class "left-td-label"} (label "password" "Password") ]
+        [:td {:class "right-td-field"} (password-field "password")]
       ]
       [:tr
-        [:td {:colspan 2 :align "center"} [:input {:type "submit" :value "Login"}]]
+        [:td {:colspan 2 :align "center"} (submit-button "Login")]
       ]
     ]
-    [:br] (h-e/link-to "/lregister" "Landlord signup")
-    [:br] (h-e/link-to "/forgotusername" "Forgot username")
-    [:br] (h-e/link-to "/forgotpassword" "Forgot password")
-  ]
+    [:br] (link-to "/lregister" "Landlord signup")
+    [:br] (link-to "/forgotusername" "Forgot username")
+    [:br] (link-to "/forgotpassword" "Forgot password")
+  )
 )

@@ -1,20 +1,21 @@
 (ns rental.routes.home
-  (:require [compojure.core :refer :all]
-            [hiccup.core :as h]
-            [hiccup.element :as h-e :refer [link-to]]
-            [clojure.pprint :refer [pprint]]
-            [clojure.tools.logging :as log :refer [info]]
-            [rental.auth :as auth]
-            [rental.schema :as schema]
-            [rental.views.layout :as layout]
-            [rental.views.admin :as admin]
-            [rental.views.tenant :as tenant]
-            [rental.views.landlord :as landlord]
-            [rental.views.login :refer [login-box]]
-            [cemerick.friend :as friend]
-            [ring.util.response :as resp]
-            (cemerick.friend [workflows :as workflows]
-                             [credentials :as creds])
+  (:require 
+    [compojure.core :refer :all]
+    [hiccup.core :as h]
+    [hiccup.element :as h-e :refer [link-to]]
+    [clojure.pprint :refer [pprint]]
+    [clojure.tools.logging :as log :refer [info]]
+    [rental.auth :as auth]
+    [rental.schema :as schema]
+    [rental.views.layout :as layout]
+    [rental.views.admin :as admin]
+    [rental.views.tenant :as tenant]
+    [rental.views.landlord :as landlord]
+    [rental.views.login :refer [login-box]]
+    [cemerick.friend :as friend]
+    [ring.util.response :as resp]
+    (cemerick.friend [workflows :as workflows]
+                     [credentials :as creds])
   )
 )
 

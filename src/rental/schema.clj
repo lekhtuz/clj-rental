@@ -1,6 +1,6 @@
 (ns rental.schema
   (:require
-    [clojure.edn :refer [read-string]]
+    [clojure.edn :refer [read-string] :rename { read-string edn-read-string }]
     [clojure.pprint :refer [pprint]]
     [clojure.tools.logging :as log :refer [info]]
     [datomic.api :as d]
@@ -36,8 +36,8 @@
 ; Attribute map added as per https://groups.google.com/forum/#!topic/datomic/aPtVB1ntqIQ
 ; Otherwise clojure.edn/read-string throws "No reader function for tag db/id" message
 ; Regular read-string works just fine witout attributes
-(def schema-tx (read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config :schema))))))
-(def setup-data-tx (read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config :setup-data))))))
+(def schema-tx (edn-read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config :schema))))))
+(def setup-data-tx (edn-read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config :setup-data))))))
 (def setup-data-encrypted-passwords-tx (map #(assoc % ::password (creds/hash-bcrypt (::password %))) setup-data-tx))
   
 (def menu
