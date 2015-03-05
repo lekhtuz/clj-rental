@@ -1,11 +1,13 @@
 (ns rental.views.login
   (:require
+    [clojure.tools.logging :as log :refer [info]]
     [hiccup.element :refer [link-to]]
-    [hiccup.form :refer [form-to text-field password-field submit-buttom]]
+    [hiccup.form :refer [label form-to text-field password-field submit-button]]
   )
 )
 
 (defn login-box []
+  (log/info "login-box function called.")
   (form-to [ :post "/login" ]
     [:table
       [:tr

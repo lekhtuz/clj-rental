@@ -20,6 +20,7 @@
 )
 
 (defn home-anonymous []
+  (log/info "home-anonymous function called.")
   (layout/common (h/html [:h1 "Welcome to the web site"] (login-box)))
 )
 
