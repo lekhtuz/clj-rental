@@ -11,7 +11,7 @@
     [rental.views.admin :as admin]
     [rental.views.tenant :as tenant]
     [rental.views.landlord :as landlord]
-    [rental.views.login :refer [login-box]]
+    [rental.views.login :as login :refer [login-box login]]
     [cemerick.friend :as friend]
     [ring.util.response :as resp]
     (cemerick.friend [workflows :as workflows]
@@ -21,7 +21,7 @@
 
 (defn home-anonymous []
   (log/info "home-anonymous function called.")
-  (layout/common (h/html [:h1 "Welcome to the web site"] (login-box)))
+  (layout/common (h/html [:h1 "Welcome to the web site"] (login/login-box)))
 )
 
 (defn home-authenticated [identity]
@@ -45,16 +45,6 @@
   )
 )
 
-(defn login []
-  (log/info "login function called")
-  (layout/common (h/html [:h1 "Enter your credentials:"] (login-box)))
-)
-
-(defn do-login [username password]
-  (log/info "Login post called")
-  (layout/common (str "username=" username ", password=" password))
-)
-
 (defroutes admin-routes
     (GET "/" request (admin/home))
 )
@@ -69,8 +59,8 @@
 
 (defroutes home-routes
   (GET "/" request (home request))
-  (GET "/login" request (login))
-  (POST "/login" [username password] (do-login username password))
+  (GET "/login" request (login/login))
+  (POST "/login" [username password] (login/login username password))
   (GET "/lregister" request (landlord/register))
   (POST "/lregister" [username password firstname lastname] (landlord/register username password firstname lastname))
   (context "/admin" request (friend/wrap-authorize admin-routes #{:rental.auth/role-admin}))

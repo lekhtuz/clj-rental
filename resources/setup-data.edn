@@ -4,7 +4,10 @@
 	 :db/id #db/id[:db.part/user]
 	 :rental.schema/usertype :rental.schema.usertype/admin
 	 :rental.schema/username "admin"
+	 :rental.schema/email "admin@admin.com"
 	 :rental.schema/password "password"
+	 :rental.schema/first_name "First"
+	 :rental.schema/last_name "Last"
  }
 
  ; Demo accounts
@@ -12,20 +15,29 @@
 	 :db/id #db/id[:db.part/user]
 	 :rental.schema/usertype :rental.schema.usertype/admin
 	 :rental.schema/username "demo-admin"
+	 :rental.schema/email "demo-admin@admin.com"
 	 :rental.schema/password "password"
+	 :rental.schema/first_name "FirstDemo"
+	 :rental.schema/last_name "LastDemo"
  }
 
  {
 	 :db/id #db/id[:db.part/user]
 	 :rental.schema/usertype :rental.schema.usertype/landlord
 	 :rental.schema/username "demo-landlord"
+	 :rental.schema/email "demo-landlord@admin.com"
 	 :rental.schema/password "password"
+	 :rental.schema/first_name "FirstDemo"
+	 :rental.schema/last_name "LastDemo"
  }
 
  {
 	 :db/id #db/id[:db.part/user]
 	 :rental.schema/usertype :rental.schema.usertype/tenant
 	 :rental.schema/username "demo-tenant"
+	 :rental.schema/email "demo-tenant@admin.com"
 	 :rental.schema/password "password"
+	 :rental.schema/first_name "FirstDemo"
+	 :rental.schema/last_name "LastDemo"
  }
 ]
