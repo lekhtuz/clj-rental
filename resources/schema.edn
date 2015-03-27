@@ -1,4 +1,5 @@
 [
+ ; Username attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema/username
@@ -9,6 +10,8 @@
   :db/index true
   :db.install/_attribute :db.part/db
  }
+
+ ; Email attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema/email
@@ -19,6 +22,8 @@
   :db/index true
   :db.install/_attribute :db.part/db
  }
+
+ ; First name attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema/first_name
@@ -28,6 +33,8 @@
   :db/index true
   :db.install/_attribute :db.part/db
  }
+
+ ; Last name attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema/last_name
@@ -37,6 +44,8 @@
   :db/index true
   :db.install/_attribute :db.part/db
  }
+
+ ; Password attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema/password
@@ -45,6 +54,19 @@
   :db/doc "Password"
   :db.install/_attribute :db.part/db
  }
+
+ ; Mailing address attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/mailing_address
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/isComponent true
+  :db/doc "Mailing address"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; User type attribute - admin, landlord, tenant
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema/usertype
@@ -53,6 +75,8 @@
   :db/doc "User type"
   :db.install/_attribute :db.part/db
  }
+
+ ; User type attribute values
  {
   :db/id #db/id[:db.part/user]
   :db/ident :rental.schema.usertype/admin
@@ -64,5 +88,55 @@
  {
   :db/id #db/id[:db.part/user]
   :db/ident :rental.schema.usertype/tenant
+ }
+
+ ; Address line 1 attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema.address/line1
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Address line 1"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Address line 2 attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema.address/line2
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Address line 2"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Address city attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema.address/city
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Address city"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Address state attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema.address/state
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Address state short name"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Address zip code attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema.address/zipcode
+  :db/valueType :db.type/long
+  :db/cardinality :db.cardinality/one
+  :db/doc "Address zip code"
+  :db.install/_attribute :db.part/db
  }
 ]

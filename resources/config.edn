@@ -1,5 +1,9 @@
 { 
- :db-url "datomic:dev://localhost:4334/rental"
- :schema "schema.edn"
- :setup-data "setup-data.edn"
+ :rental.schema/db-url "datomic:dev://localhost:4334/rental"
+ :rental.schema/schema "schema.edn"
+ :rental.schema/setup-data "setup-data.edn"
+ 
+ :rental.geonames/username "lekhtuz"
+ :rental.geonames/country-url "http://api.geonames.org/countryInfoJSON"
+ :rental.geonames/states-url "http://api.geonames.org/childrenJSON"
 }

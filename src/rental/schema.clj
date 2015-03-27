@@ -14,7 +14,7 @@
 
 ;(def insert-admin '({:db/id #db/id[:db.part/user] :rental.schema/usertype :rental.schema.usertype/admin :rental.schema/username "admin" :rental.schema/password "password"}))
 
-(def uri (cc/config :db-url))
+(def uri (cc/config ::db-url))
 
 ; Retrieve connection every time it is needed. It is cached internally, so it's cheap.
 (defn conn []
@@ -36,8 +36,8 @@
 ; Attribute map added as per https://groups.google.com/forum/#!topic/datomic/aPtVB1ntqIQ
 ; Otherwise clojure.edn/read-string throws "No reader function for tag db/id" message
 ; Regular read-string works just fine witout attributes
-(def schema-tx (edn-read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config :schema))))))
-(def setup-data-tx (edn-read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config :setup-data))))))
+(def schema-tx (edn-read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config ::schema))))))
+(def setup-data-tx (edn-read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config ::setup-data))))))
 (def setup-data-encrypted-passwords-tx (map #(assoc % ::password (creds/hash-bcrypt (::password %))) setup-data-tx))
   
 (def menu
@@ -62,7 +62,7 @@
    [:br]
    "URI=" uri
    [:br]
-   "Schema file=" (cc/config :schema)
+   "Schema file=" (cc/config ::schema)
    [:br]
    (h-e/unordered-list menu)
  )

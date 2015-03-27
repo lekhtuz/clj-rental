@@ -2,9 +2,10 @@
   (:require
     [hiccup.core :as h]
     [hiccup.element :as h-e :refer [link-to]]
-    [hiccup.form :refer [label form-to text-field password-field submit-button]]
+    [hiccup.form :refer [label form-to text-field email-field password-field drop-down submit-button]]
 ;    [ring.util.response :as resp]
     [rental.views.layout :as layout]
+    [rental.geonames :as geonames]
   )
 )
 
@@ -18,21 +19,22 @@
       (h/html
         [:h1 "Landlord register"]
         [:table
+         (map (partial layout/form-row ["left-td-label" "right-td-field"]) [
+                        [text-field "firstname" "First name"]
+                        [text-field "lastname" "Last name"]
+                        [email-field "email" "Email"]
+                        [password-field "password" "Password"]
+                        [text-field "address1" "Address"]
+                        [text-field "address2" ""]
+                       ]
+         )
          [:tr
-          [:td {:class "left-td-label"} (label "firstname" "First name")]
-          [:td {:class "right-td-field"} (text-field "firstname")] 
+          [:td {:class "left-td-label"} (label "state" "State")]
+          [:td {:class "right-td-field"} (drop-down "state" (geonames/get-states-seq))]
          ]
          [:tr
-          [:td {:class "left-td-label"} (label "lastname" "Last name")]
-          [:td {:class "right-td-field"} (text-field "lastname")] 
-         ]
-         [:tr
-          [:td {:class "left-td-label"} (label "email" "Email")]
-          [:td {:class "right-td-field"} (text-field "email")] 
-         ]
-         [:tr
-          [:td {:class "left-td-label"} (label "password" "Password")]
-          [:td {:class "right-td-field"} (password-field "password")]
+          [:td {:class "left-td-label"} (label "zipcode" "Zip Code")]
+          [:td {:class "right-td-field"} (text-field "zipcode")]
          ]
          [:tr
            [:td {:colspan 2 :align "center"} (submit-button "Register")]

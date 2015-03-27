@@ -6,8 +6,15 @@
 	 :rental.schema/username "admin"
 	 :rental.schema/email "admin@admin.com"
 	 :rental.schema/password "password"
-	 :rental.schema/first_name "First"
-	 :rental.schema/last_name "Last"
+	 :rental.schema/first_name "Barak"
+	 :rental.schema/last_name "Obama"
+	 :rental.schema/mailing_address  {
+                                   :db/id #db/id[:db.part/user]
+                                   :rental.schema.address/line1 "1600 Pennsylvania Avenue NW"
+                                   :rental.schema.address/city "Washington"
+                                   :rental.schema.address/state "DC"
+                                   :rental.schema.address/zipcode 20500
+                                   }
  }
 
  ; Demo accounts

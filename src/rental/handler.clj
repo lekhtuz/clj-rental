@@ -1,28 +1,30 @@
 (ns rental.handler
-  (:require 
-            [clojure.tools.logging :as log :refer [info]]
-            [cemerick.friend :as friend]
-            (cemerick.friend [workflows :as workflows]
-                             [credentials :as creds])
-            [compojure.core :refer [defroutes]]
-            [compojure.handler :as handler]
-            [compojure.route :as route]
-            [ring.util.response :as resp]
-            [ring.middleware.resource :refer [wrap-resource]]
-            [ring.middleware.file-info :refer [wrap-file-info]]
-            [hiccup.page :as h]
-            [hiccup.element :as e]
-            [hiccup.middleware :refer [wrap-base-url]]
-            [rental.routes.home :as home :refer [home-routes]]
-            [rental.auth :as auth :refer [authenticate]]
-            [rental.schema :as schema]
-            [rental.middleware :refer [wrap-log-request-response]]
+  (:require
+    [clojure.tools.logging :as log :refer [info]]
+    [cemerick.friend :as friend]
+    (cemerick.friend [workflows :as workflows]
+                     [credentials :as creds])
+    [compojure.core :refer [defroutes]]
+    [compojure.handler :as handler]
+    [compojure.route :as route]
+    [ring.util.response :as resp]
+    [ring.middleware.resource :refer [wrap-resource]]
+    [ring.middleware.file-info :refer [wrap-file-info]]
+    [hiccup.page :as h]
+    [hiccup.element :as e]
+    [hiccup.middleware :refer [wrap-base-url]]
+    [rental.routes.home :as home :refer [home-routes]]
+    [rental.auth :as auth :refer [authenticate]]
+    [rental.schema :as schema]
+    [rental.geonames :as geonames]
+    [rental.middleware :refer [wrap-log-request-response]]
   )
 )
 
 (defn init []
   (log/info "rental is starting")
   (schema/start)
+  (geonames/start)
 )
 
 (defn destroy []

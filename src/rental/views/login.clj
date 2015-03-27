@@ -1,7 +1,7 @@
 (ns rental.views.login
   (:require
-    [rental.views.layout :as layout :refer [common form-row]]
-    [clojure.tools.logging :as log :refer [info]]
+    [rental.views.layout :as layout]
+    [clojure.tools.logging :as log]
     [hiccup.core :refer [html]]
     [hiccup.element :refer [link-to]]
     [hiccup.form :refer [label form-to text-field password-field submit-button]]
@@ -12,7 +12,7 @@
   (log/info "login-box function called.")
   (form-to [ :post "/login" ]
     [:table
-     (map (partial form-row ["left-td-label" "right-td-field"]) [
+     (map (partial layout/form-row ["left-td-label" "right-td-field"]) [
                     [text-field "username" "Username"]
                     [password-field "password" "Password"]
                    ]
@@ -21,7 +21,7 @@
        [:td {:colspan 2 :align "center"} (submit-button "Login")]
      ]
     ]
-    [:br] (link-to "/lregister" "Landlord signup")
+    [:br] (link-to "/lregister" "Landlord registration")
     [:br] (link-to "/forgotusername" "Forgot username")
     [:br] (link-to "/forgotpassword" "Forgot password")
   )
