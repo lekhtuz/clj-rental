@@ -7,12 +7,12 @@
   )
 )
 
-; http://api.geonames.org/countryInfoJSON?country=US&username=lekhtuz
-; http://api.geonames.org/childrenJSON?geonameId=6252001&username=lekhtuz
-
 (def geonames-username (cc/config ::username))
 
+; Sorted map
 (declare ^:dynamic *us-states-map*)
+
+; Sorted sequence of ["New Jersey" "NJ"], suitable for HTML dropdowns/selects
 (declare ^:dynamic *us-states-seq*)
 
 (defn load-states [country]
@@ -44,7 +44,7 @@
               (log/info "load-states us-states[0] =" (us-states 0))
               (def ^:dynamic *us-states-map* (reduce #(assoc %1 (%2 "adminCode1") (%2 "toponymName")) { } us-states))
               (log/info "load-states *us-states-map* =" (count *us-states-map*) *us-states-map*)
-              (def ^:dynamic *us-states-seq* (map #(vector (% "toponymName") (% "adminCode1")) us-states))
+              (def ^:dynamic *us-states-seq* (sort-by last (map #(vector (% "toponymName") (% "adminCode1")) us-states)))
               (log/info "load-states *us-states-seq* =" (count *us-states-seq*) *us-states-seq*)
             )
           )
