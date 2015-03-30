@@ -7,6 +7,7 @@
     [clojure.tools.logging :as log :refer [info]]
     [rental.auth :as auth]
     [rental.schema :as schema]
+    [rental.validation :as validation]
     [rental.views.layout :as layout]
     [rental.views.admin :as admin]
     [rental.views.tenant :as tenant]
@@ -21,7 +22,7 @@
 
 (defn home-anonymous []
   (log/info "home-anonymous function called.")
-  (layout/common (h/html [:h1 "Welcome to the web site"] (login/login-box layout/default-errors)))
+  (layout/common (h/html [:h1 "Welcome to the web site"] (login/login-box validation/default-errors)))
 )
 
 (defn home-authenticated [identity]
@@ -61,7 +62,7 @@
   (GET "/" request (home request))
   (GET "/login" [username login_failed] (if (= login_failed "Y") (login/login username) (login/login)))
   (POST "/login" [username password] (login/login username password))
-  (GET "/lregister" request (landlord/register layout/default-errors))
+  (GET "/lregister" request (landlord/register validation/default-errors))
   (POST "/lregister" [username password firstname lastname] (landlord/register username password firstname lastname))
   (context "/admin" request (friend/wrap-authorize admin-routes #{:rental.auth/role-admin}))
   (context "/landlord" request (friend/wrap-authorize landlord-routes #{:rental.auth/role-landlord}))

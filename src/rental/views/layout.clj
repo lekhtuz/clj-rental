@@ -5,17 +5,8 @@
     [hiccup.form :refer [label]]
     [hiccup.page :refer [html5 include-css]]
     [cemerick.friend :as friend :refer [anonymous?]]
+    [rental.validation :as validation]
   )
-)
-
-(def default-errors {:class "error"})
-
-(defn add-error [errors field text]
-  (assoc errors field text)
-)
-
-(defn has-errors [errors]
-  (> (count errors) (count default-errors))
 )
 
 (defn common [& body]
@@ -38,16 +29,12 @@
   )
 )
 
-(defn print-error [errors field]
-  [:span {:class (errors :class)} (errors field)]
-)
-
 (defn form-row 
   ([errors [type name info value]]
     (log/info "form-row: type =" type ", name =" name ", info =" info ", value =" value ", errors =" errors)
     [:tr
      [:td (label name info)]
-     [:td (type name value) (print-error errors name)]
+     [:td (type name value) (validation/print-error errors name)]
     ]
   )
   ([colclasses errors row]
