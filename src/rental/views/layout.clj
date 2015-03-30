@@ -8,6 +8,16 @@
   )
 )
 
+(def default-errors {:class "error"})
+
+(defn add-error [errors field text]
+  (assoc errors field text)
+)
+
+(defn has-errors [errors]
+  (> (count errors) (count default-errors))
+)
+
 (defn common [& body]
   (html5
     [:head
@@ -28,17 +38,22 @@
   )
 )
 
+(defn print-error [errors field]
+  [:span {:class (errors :class)} (errors field)]
+)
+
 (defn form-row 
-  ([[type name info value]]
-   [:tr
-    [:td (label name info)]
-    [:td (type name value)]
-   ]
+  ([errors [type name info value]]
+    (log/info "form-row: type =" type ", name =" name ", info =" info ", value =" value ", errors =" errors)
+    [:tr
+     [:td (label name info)]
+     [:td (type name value) (print-error errors name)]
+    ]
   )
-  ([colclasses row]
-    (log/info "form-row-with-style row=" row ", colclasses=" colclasses)
-    (let [[tr & tds] (form-row row)]
-      (log/info "form-row-with-style tr=" tr ", tds=" tds)
+  ([colclasses errors row]
+    (log/info "form-row: errors =" errors ", colclasses =" colclasses ", row =" row)
+    (let [[tr & tds] (form-row errors row)]
+      (log/info "form-row: tr=" tr ", tds=" tds)
       [tr (if (= tr :tr)
             (map #(if (map? (second %1))
                          (assoc (assoc (second %1) :class %2) 1 %1)
@@ -51,3 +66,4 @@
     )
   )
 )
+

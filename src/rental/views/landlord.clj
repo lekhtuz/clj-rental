@@ -1,5 +1,6 @@
 (ns rental.views.landlord
   (:require
+    [clojure.tools.logging :as log]
     [hiccup.core :as h]
     [hiccup.element :as h-e :refer [link-to]]
     [hiccup.form :refer [label form-to text-field email-field password-field drop-down submit-button]]
@@ -14,16 +15,18 @@
 )
 
 (defn register
-  ([]
+  ([errors]
+    (log/info "register: errors =" errors)
     (layout/common
       (h/html
         [:h1 "Landlord register"]
         [:table
-         (map (partial layout/form-row ["left-td-label" "right-td-field"]) [
+         (map (partial layout/form-row ["left-td-label" "right-td-field"] errors) [
+                        [text-field "username" "Username"]
+                        [password-field "password" "Password"]
                         [text-field "firstname" "First name"]
                         [text-field "lastname" "Last name"]
                         [email-field "email" "Email"]
-                        [password-field "password" "Password"]
                         [text-field "address1" "Address"]
                         [text-field "address2" ""]
                        ]

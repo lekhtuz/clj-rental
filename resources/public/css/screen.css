@@ -1,3 +1,5 @@
+/* .class #id */
+
 body {
     color: #555;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -14,6 +16,11 @@ h1 {
 }
 
 .table-title {
+	font-weight: bold;
+}
+
+.error {
+	color: red;
 	font-weight: bold;
 }
 

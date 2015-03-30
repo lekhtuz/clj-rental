@@ -17,32 +17,15 @@
   }
 )
 
-; a dummy in-memory user "database"
-(def users
-  {
-   "lekhtuz@gmail.com" {
-                        :username "lekhtuz@gmail.com"
-                        :password (creds/hash-bcrypt "dim1dim")
-                        :roles #{::role-admin}
-                       }
-   "admin" {
-            :username "admin"
-            :password (creds/hash-bcrypt "password")
-            :roles #{::role-admin}
-           }
-  }
-)
-
 (defn authenticate [username]
-  (log/info "authenticate function called. username=" username)
+  (log/info "authenticate: username=" username)
   (let [
         id (ffirst (d/q '[:find ?e :in $ ?u :where [?e :rental.schema/username ?u]] (s/db) username))
         ent (d/entity (s/db) id)
       ]
-      (log/info "id=" id)
-      (log/info "ent=" ent)
-      (log/info "keys ent=" (keys ent))
-      { :username username :password (:rental.schema/password ent) :roles #{((:rental.schema/usertype ent) usertype-role)} }
+      (log/info "authenticate: id=" id ", ent=" ent "(keys ent) =" (keys ent))
+      (if-not (nil? ent)
+        { :username username :password (:rental.schema/password ent) :roles #{((:rental.schema/usertype ent) usertype-role)} }
+      )
   )
-;  (users username)
 )
