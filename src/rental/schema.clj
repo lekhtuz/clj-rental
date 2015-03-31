@@ -10,6 +10,9 @@
     [hiccup.element :as h-e :refer [link-to unordered-list]]
     [rental.views.layout :as layout]
   )
+  (:import
+    [java.util Date]
+  )
 )
 
 ;(def insert-admin '({:db/id #db/id[:db.part/user] :rental.schema/usertype :rental.schema.usertype/admin :rental.schema/username "admin" :rental.schema/password "password"}))
@@ -24,6 +27,7 @@
     c
   )
 )
+
 (defn db []
   (log/info "Database request received. Calling d/db...")
   (let [d (d/db (conn))]
@@ -31,7 +35,6 @@
     d
   )
 )
-(defn db [] (d/db (conn)))
 
 ; Attribute map added as per https://groups.google.com/forum/#!topic/datomic/aPtVB1ntqIQ
 ; Otherwise clojure.edn/read-string throws "No reader function for tag db/id" message
@@ -90,4 +93,10 @@
     (log/info "database" uri "was not deleted.")
   )
   (ring.util.response/redirect "/schema")
+)
+
+(defn update-last-successful-login [id]
+  (log/info "update-last-successful-login: id =" id)
+  @(d/transact (conn) [{:db/id id :rental.schema/last-successful-login (java.util.Date.)}])
+  (log/info "update-last-successful-login: updated")
 )

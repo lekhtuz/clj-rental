@@ -1,6 +1,7 @@
 (ns rental.views.login
   (:require
     [rental.validation :as validation]
+    [rental.schema :as schema]
     [rental.views.layout :as layout]
     [clojure.string :as str]
     [clojure.tools.logging :as log]
@@ -8,6 +9,14 @@
     [hiccup.element :refer [link-to]]
     [hiccup.form :refer [label form-to text-field password-field submit-button]]
   )
+)
+
+(defn record-successful-login [identity]
+  (log/info "record-successful-login: started. identity =" identity)
+  (schema/update-last-successful-login (:db/id (:rental.schema/db-entity identity)))
+)
+
+(defn record-failed-login [username]
 )
 
 (defn login-box [errors]

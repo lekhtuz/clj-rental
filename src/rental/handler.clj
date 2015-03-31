@@ -19,6 +19,9 @@
     [rental.geonames :as geonames]
     [rental.middleware :refer [wrap-log-request-response]]
   )
+  (:import
+    [javax.servlet.http HttpServletResponse]
+  )
 )
 
 (defn init []
@@ -48,11 +51,11 @@
                            {
                             :allow-anon? true
                             :login-url "/login"
-                            :default-landing-uri "/"
+                            :default-landing-uri "/landing"
                             :unauthorized-handler 
                               #(-> (h/html5 [:h2 "You do not have sufficient privileges to access " (:uri %)])
                                           resp/response
-                                          (resp/status 401))
+                                          (resp/status HttpServletResponse/SC_UNAUTHORIZED))
                             :credential-fn #(creds/bcrypt-credential-fn auth/authenticate %)
                             :workflows [(workflows/interactive-form)]}))
     (wrap-log-request-response "after wrap-base-url")

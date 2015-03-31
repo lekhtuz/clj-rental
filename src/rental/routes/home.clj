@@ -62,6 +62,7 @@
   (GET "/" request (home request))
   (GET "/login" [username login_failed] (if (= login_failed "Y") (login/login username) (login/login)))
   (POST "/login" [username password] (login/login username password))
+  (GET "/landing" {{identity :cemerick.friend/identity} :session} (login/record-successful-login ((:authentications identity) (:current identity))))
   (GET "/lregister" request (landlord/register validation/default-errors))
   (POST "/lregister" [username password firstname lastname] (landlord/register username password firstname lastname))
   (context "/admin" request (friend/wrap-authorize admin-routes #{:rental.auth/role-admin}))

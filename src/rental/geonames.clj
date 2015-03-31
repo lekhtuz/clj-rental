@@ -5,6 +5,9 @@
     [clj-http.client :as client]
     [carica.core :as cc]
   )
+  (:import
+    [javax.servlet.http HttpServletResponse]
+  )
 )
 
 (def geonames-username (cc/config ::username))
@@ -24,9 +27,8 @@
                                           }
                               )
         ]
-    (log/info "load-states status =" status)
-    (log/info "load-states body =" body)
-    (if (= status 200)
+    (log/info "load-states: status =" status ", body =" body)
+    (if (= status (HttpServletResponse/SC_OK))
       (let [us-geoname-id ((((json/read-str body) "geonames") 0) "geonameId")] 
         (log/info "load-states us-geoname-id =" us-geoname-id)
         (let [{:keys [status body]} (client/get (cc/config ::states-url)
@@ -36,9 +38,8 @@
                                                 }
                                     )
               ]
-          (log/info "load-states status =" status)
-          (log/info "load-states body =" body)
-          (if (= status 200)
+          (log/info "load-states: status =" status ", body =" body)
+          (if (= status (HttpServletResponse/SC_OK))
             (let [us-states ((json/read-str body) "geonames")]
               (log/info "load-states us-states =" (count us-states))
               (log/info "load-states us-states[0] =" (us-states 0))

@@ -24,6 +24,11 @@
   [:span {:class (errors :class)} "&nbsp;" (errors field)]
 )
 
-(defn reject-if-empty [errors field value message]
- (if (str/blank? value) (add-error errors field message))
+(defn reject-if-empty 
+  ([field value message]
+    (reject-if-empty default-errors field value message)
+  )
+  ([errors field value message]
+    (if (str/blank? value) (add-error errors field message) errors)
+  )
 )

@@ -55,6 +55,26 @@
   :db.install/_attribute :db.part/db
  }
 
+ ; Last successful login attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/last-successful-login
+  :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one
+  :db/doc "Last successful login date"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Last failed login attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/last-failed-login
+  :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one
+  :db/doc "Last failed login date"
+  :db.install/_attribute :db.part/db
+ }
+
  ; Mailing address attribute
  {
   :db/id #db/id[:db.part/db]
