@@ -22,7 +22,7 @@
 
 (defn home-anonymous []
   (log/info "home-anonymous function called.")
-  (layout/common (h/html [:h1 "Welcome to the web site"] (login/login-box validation/default-errors)))
+  (layout/common (h/html [:h1 "Welcome to the web site"] (login/login-box validation/default-form-info)))
 )
 
 (defn home-authenticated [identity]
@@ -62,8 +62,8 @@
   (GET "/" request (home request))
   (GET "/login" [username login_failed] (if (= login_failed "Y") (login/login username) (login/login)))
   (POST "/login" [username password] (login/login username password))
-  (GET "/lregister" request (landlord/register validation/default-errors))
-  (POST "/lregister" [username password firstname lastname] (landlord/register username password firstname lastname))
+  (GET "/lregister" request (landlord/register-view validation/default-form-info {}))
+  (POST "/lregister" {params :params} (landlord/register params))
   (context "/admin" request (friend/wrap-authorize admin-routes #{:rental.auth/role-admin}))
   (context "/landlord" request (friend/wrap-authorize landlord-routes #{:rental.auth/role-landlord}))
   (context "/tenant" request (friend/wrap-authorize tenant-routes #{:rental.auth/role-tenant}))

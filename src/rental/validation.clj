@@ -5,30 +5,42 @@
   )
 )
 
-(def default-errors {:class "error"})
+(def default-form-info {:class "error" :errors {}})
 
-(defn add-error 
-  ([field text]
-    (add-error default-errors field text)
+(defn add-error [form-info field text]
+  (log/info "add-error: field =" field ", text =" text ", form-info =" form-info)
+  (assoc-in form-info [:errors field] text)
+)
+
+(defn has-errors [form-info]
+  (pos? (count (:errors form-info)))
+)
+
+(defn print-error [{ :keys [ class errors ]} field]
+  [:span {:class class} "&nbsp;" (errors field)]
+)
+
+(defn reject-if-empty
+  ([form-info field value]
+    (reject-if-empty form-info field value (str "Field \"" (name field) "\" can not be blank"))
   )
-  ([errors field text]
-    (assoc errors field text)
+  ([form-info field value message]
+    (log/info "reject-if-empty: field =" field ", value =" value ", message =" message ", form-info =" form-info)
+    (if (str/blank? value) (add-error form-info field message) form-info)
   )
 )
 
-(defn has-errors [errors]
-  (> (count errors) (count default-errors))
-)
-
-(defn print-error [errors field]
-  [:span {:class (errors :class)} "&nbsp;" (errors field)]
-)
-
-(defn reject-if-empty 
-  ([field value message]
-    (reject-if-empty default-errors field value message)
-  )
-  ([errors field value message]
-    (if (str/blank? value) (add-error errors field message) errors)
+(defn validate [form-info params]
+  (log/info "validate: params =" params ", form-info =" form-info)
+  (let [validators-map (:validators form-info)]
+    (reduce-kv (fn [finfo field field-validators]
+                 (log/info "validate: field =" field ", field-validators =" field-validators ", form-info =" finfo)
+                 (reduce (fn [fi vfn] 
+                           (log/info "validate: vfn =" vfn ", form-info =" fi)
+                           (vfn fi field (params field))
+                         ) finfo field-validators
+                 ) 
+               ) form-info validators-map
+    )
   )
 )

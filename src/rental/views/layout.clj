@@ -30,16 +30,16 @@
 )
 
 (defn form-row 
-  ([errors [type name info value]]
-    (log/info "form-row: type =" type ", name =" name ", info =" info ", value =" value ", errors =" errors)
+  ([form-info [type-fn field info value]]
+    (log/info "form-row: type-fn =" type-fn ", field =" field ", info =" info ", value =" value ", form-info =" form-info)
     [:tr
-     [:td (label name info)]
-     [:td (type name value) (validation/print-error errors name)]
+     [:td (label field info)]
+     [:td (type-fn field value) (validation/print-error form-info field)]
     ]
   )
-  ([colclasses errors row]
-    (log/info "form-row: errors =" errors ", colclasses =" colclasses ", row =" row)
-    (let [[tr & tds] (form-row errors row)]
+  ([colclasses form-info row]
+    (log/info "form-row: form-info =" form-info ", colclasses =" colclasses ", row =" row)
+    (let [[tr & tds] (form-row form-info row)]
       (log/info "form-row: tr=" tr ", tds=" tds)
       [tr (if (= tr :tr)
             (map #(if (map? (second %1))
@@ -54,3 +54,8 @@
   )
 )
 
+; rows - sequence of [type-fn field info]
+; for every row add (:field params) as the last element
+(defn add-values-to-form-rows [rows params]
+  rows
+)

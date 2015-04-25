@@ -19,16 +19,16 @@
 (defn record-failed-login [username]
 )
 
-(defn login-box [errors]
-  (log/info "login-box: errors =" errors)
+(defn login-box [form-info]
+  (log/info "login-box: form-info =" form-info)
   (form-to [ :post "/login" ]
     [:table
-     (if-not (nil? (:form errors))
+     (if-not (nil? (:form form-info))
        [:tr
-         [:td {:colspan 2 :align "center"} (validation/print-error errors :form)]
+         [:td {:colspan 2 :align "center"} (validation/print-error form-info :form)]
        ]
      )
-     (map (partial layout/form-row ["left-td-label" "right-td-field"] errors)
+     (map (partial layout/form-row ["left-td-label" "right-td-field"] form-info)
           [
            [text-field "username" "Username"]
            [password-field "password" "Password"]
@@ -48,7 +48,7 @@
   ([]
     ; Display the login form
     (log/info "login: started")
-    (layout/common (html [:h1 "Enter your credentials:"] (login-box validation/default-errors)))
+    (layout/common (html [:h1 "Enter your credentials:"] (login-box validation/default-form-info)))
   )
   ([username]
     ; Login failed
