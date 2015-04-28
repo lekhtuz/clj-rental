@@ -67,17 +67,22 @@
   (context "/admin" request (friend/wrap-authorize admin-routes #{:rental.auth/role-admin}))
   (context "/landlord" request (friend/wrap-authorize landlord-routes #{:rental.auth/role-landlord}))
   (context "/tenant" request (friend/wrap-authorize tenant-routes #{:rental.auth/role-tenant}))
+  (GET "/landing" {session :session}
+       (friend/wrap-authorize 
+         (if (nil? session)
+           (resp/redirect "/")
+           (if-let [identity (:cemerick.friend/identity session)]
+             (login/record-successful-login ((:authentications identity) (:current identity)))
+             (resp/redirect "/")
+           )
+         )
+         #{:rental.auth/role-admin :rental.auth/role-landlord :rental.auth/role-tenant}
+       )
+  )
   (context "/schema" []
     (GET "/" request (schema/maintenance))
     (GET "/create" request (schema/create-database))
     (GET "/delete" request (schema/delete-database))
   )
   (friend/logout (ANY "/logout" request (resp/redirect "/")))
-  ; Moved /landing to the bottom of the list because everything after friend/wrap-authorize will require authorization. This is not right.
-  ; The problem is with destructuring. Initially there is no session, and NPE is thrown. Need to find a bettery way to wrap complete route definition.
-  ; There is probably -> somewhere underneath.
-  (friend/wrap-authorize
-    (GET "/landing" {{identity :cemerick.friend/identity} :session} (login/record-successful-login ((:authentications identity) (:current identity))))
-    #{:rental.auth/role-admin :rental.auth/role-landlord :rental.auth/role-tenant}
-  )
 )
