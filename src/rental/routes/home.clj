@@ -6,17 +6,16 @@
     [clojure.pprint :refer [pprint]]
     [clojure.tools.logging :as log :refer [info]]
     [rental.auth :as auth]
-    [rental.schema :as schema]
     [rental.validation :as validation]
-    [rental.views.layout :as layout]
-    [rental.views.admin :as admin]
-    [rental.views.tenant :as tenant]
-    [rental.views.landlord :as landlord]
-    [rental.views.login :as login :refer [login-box login]]
+    (rental.views [layout :as layout]
+                  [admin :as admin]
+                  [tenant :as tenant]
+                  [landlord :as landlord]
+                  [schema :as schema]
+                  [login :as login :refer [login-box login]])
     [cemerick.friend :as friend]
     [ring.util.response :as resp]
-    (cemerick.friend [workflows :as workflows]
-                     [credentials :as creds])
+    [cemerick.friend.credentials :as creds]
   )
 )
 
@@ -68,15 +67,20 @@
   (context "/landlord" request (friend/wrap-authorize landlord-routes #{:rental.auth/role-landlord}))
   (context "/tenant" request (friend/wrap-authorize tenant-routes #{:rental.auth/role-tenant}))
   (GET "/landing" {session :session}
-       (friend/wrap-authorize 
-         (if (nil? session)
-           (resp/redirect "/")
-           (if-let [identity (:cemerick.friend/identity session)]
-             (login/record-successful-login ((:authentications identity) (:current identity)))
-             (resp/redirect "/")
+       (do
+         ; friend/wrap-authorize call is not really needed here ebcause I check for identity myself.
+         ; If I wrap the complete (do) block, route is no longer recognized and 404 occurs.
+         ; The only reason when wrap-authorize will be needed, is if new roles are introduced for which /landing is not allowed.
+         ; This is very unlikely.
+;         (friend/wrap-authorize
+           (if-not (nil? session)
+             (if-let [identity (:cemerick.friend/identity session)]
+               (login/record-successful-login ((:authentications identity) (:current identity)))
+             )
            )
-         )
-         #{:rental.auth/role-admin :rental.auth/role-landlord :rental.auth/role-tenant}
+;           auth/all-roles)
+         (log/info "landing: redirecting to /...")
+         (resp/redirect "/")
        )
   )
   (context "/schema" []

@@ -37,7 +37,7 @@
 
 (defroutes app-routes
   (route/resources "/")
-  (route/not-found "Not Found")
+  (route/not-found "The page you are trying to access does not exist.")
 )
 
 (defroutes myroutes home-routes app-routes)

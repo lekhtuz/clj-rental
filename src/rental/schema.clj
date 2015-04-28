@@ -6,9 +6,6 @@
     [datomic.api :as d]
     [carica.core :as cc]
     [cemerick.friend.credentials :as creds]
-    [hiccup.page :as h :refer [html5]]
-    [hiccup.element :as h-e :refer [link-to unordered-list]]
-    [rental.views.layout :as layout]
   )
   (:import
     [java.util Date]
@@ -42,13 +39,6 @@
 (def schema-tx (edn-read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config ::schema))))))
 (def setup-data-tx (edn-read-string {:readers *data-readers*} (slurp (first (cc/resources (cc/config ::setup-data))))))
 (def setup-data-encrypted-passwords-tx (map #(assoc % ::password (creds/hash-bcrypt (::password %))) setup-data-tx))
-  
-(def menu
-  [
-   (h-e/link-to "/schema/create" "Create database")
-   (h-e/link-to "/schema/delete" "Delete database")
-  ]
-)
 
 (defn start []
   (log/info "Starting db " uri "...")
@@ -56,19 +46,6 @@
 
 (defn stop []
   (log/info "Stopping db" uri "...")
-)
-
-(defn maintenance []
- (log/info "Schema maintenance")
- (layout/common 
-   [:h1 "Schema maintenance"] 
-   [:br]
-   "URI=" uri
-   [:br]
-   "Schema file=" (cc/config ::schema)
-   [:br]
-   (h-e/unordered-list menu)
- )
 )
 
 (defn create-database []
@@ -84,7 +61,6 @@
     )
     (log/info "database" uri "already exists.")
   )
-  (ring.util.response/redirect "/schema")
 )
 
 (defn delete-database []
@@ -92,11 +68,21 @@
     (log/info "database" uri "deleted.")
     (log/info "database" uri "was not deleted.")
   )
-  (ring.util.response/redirect "/schema")
+)
+
+(defn load-user [username]
+  (log/info "load-user: username =" username)
+  (let [
+        id (ffirst (d/q '[:find ?e :in $ ?u :where [?e ::username ?u]] (db) username))
+        ent (d/entity (db) id)
+      ]
+      (log/info "load-user: id =" id ", ent =" ent ", (keys ent) =" (keys ent))
+      ent
+  )
 )
 
 (defn update-last-successful-login [id]
   (log/info "update-last-successful-login: id =" id)
-  @(d/transact (conn) [{:db/id id :rental.schema/last-successful-login (java.util.Date.)}])
+  @(d/transact (conn) [{:db/id id ::last-successful-login (java.util.Date.)}])
   (log/info "update-last-successful-login: updated")
 )

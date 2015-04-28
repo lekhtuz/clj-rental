@@ -2,14 +2,19 @@
   (:require
     [clojure.tools.logging :as log :refer [info]]
     [clojure.string :as str]
+    [rental.schema :as schema :refer [load-user]]
   )
 )
 
 (def default-form-info {:class "error" :errors {}})
 
-(defn add-error [form-info field text]
-  (log/info "add-error: field =" field ", text =" text ", form-info =" form-info)
-  (assoc-in form-info [:errors field] text)
+(defn add-error [form-info field error-message]
+  (log/info "add-error: field =" field ", error-message =" error-message ", form-info =" form-info)
+  (assoc-in form-info [:errors field] 
+            (if-let [message-list ((:errors form-info) field)]
+              (conj message-list error-message)
+              [error-message])
+  )
 )
 
 (defn has-errors [form-info]
@@ -17,7 +22,7 @@
 )
 
 (defn print-error [{ :keys [ class errors ]} field]
-  [:span {:class class} "&nbsp;" (errors field)]
+  [:span {:class class} "&nbsp;" (str/join "<br>" (errors field))]
 )
 
 (defn reject-if-empty
@@ -27,6 +32,16 @@
   ([form-info field value message]
     (log/info "reject-if-empty: field =" field ", value =" value ", message =" message ", form-info =" form-info)
     (if (str/blank? value) (add-error form-info field message) form-info)
+  )
+)
+
+(defn username-exists
+  ([form-info field value]
+    (username-exists form-info field value (str "Username is not available"))
+  )
+  ([form-info field value message]
+    (log/info "username-exists: field =" field ", value =" value ", message =" message ", form-info =" form-info)
+    (if (schema/load-user value) (add-error form-info field message) form-info)
   )
 )
 

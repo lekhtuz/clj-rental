@@ -14,10 +14,11 @@
 (def registration-form-info
   (assoc validation/default-form-info :validators
     {
-     :username [validation/reject-if-empty]
+     :username [validation/reject-if-empty validation/username-exists]
      :password [validation/reject-if-empty]
      :firstname [validation/reject-if-empty]
      :lastname [validation/reject-if-empty]
+     :email [validation/reject-if-empty]
     }
   )
 )

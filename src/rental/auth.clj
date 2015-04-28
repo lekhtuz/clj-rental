@@ -4,7 +4,7 @@
     [clojure.tools.logging :as log :refer [info]]
     [cemerick.friend.credentials :as creds]
     [datomic.api :as d :refer [q]]
-    [rental.schema :as s :refer [db]]
+    [rental.schema :as schema :refer [load-user]]
   )
 )
 
@@ -17,15 +17,11 @@
   }
 )
 
+(def all-roles (vals usertype-role))
+
 (defn authenticate [username]
   (log/info "authenticate: username =" username)
-  (let [
-        id (ffirst (d/q '[:find ?e :in $ ?u :where [?e :rental.schema/username ?u]] (s/db) username))
-        ent (d/entity (s/db) id)
-      ]
-      (log/info "authenticate: id =" id ", ent =" ent "(keys ent) =" (keys ent))
-      (if-not (nil? ent)
-        { :username username :password (:rental.schema/password ent) :rental.schema/db-entity ent :roles #{((:rental.schema/usertype ent) usertype-role)} }
-      )
+  (if-let [ ent (schema/load-user username) ]
+    { :username username :password (:rental.schema/password ent) :rental.schema/db-entity ent :roles #{((:rental.schema/usertype ent) usertype-role)} }
   )
 )
