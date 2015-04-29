@@ -18,7 +18,7 @@
 )
 
 (defn has-errors [form-info]
-  (pos? (count (:errors form-info)))
+  (seq (:errors form-info))
 )
 
 (defn print-error [{ :keys [ class errors ]} field]

@@ -68,8 +68,8 @@
   (context "/tenant" request (friend/wrap-authorize tenant-routes #{:rental.auth/role-tenant}))
   (GET "/landing" {session :session}
        (do
-         ; friend/wrap-authorize call is not really needed here ebcause I check for identity myself.
-         ; If I wrap the complete (do) block, route is no longer recognized and 404 occurs.
+         ; friend/wrap-authorize call is not really needed here because I check for identity myself.
+         ; If I wrap the complete (do) block, route is no longer recognized and 404 is returned.
          ; The only reason when wrap-authorize will be needed, is if new roles are introduced for which /landing is not allowed.
          ; This is very unlikely.
 ;         (friend/wrap-authorize

@@ -42,10 +42,10 @@
     (let [[tr & tds] (form-row form-info row)]
       (log/info "form-row: tr=" tr ", tds=" tds)
       [tr (if (= tr :tr)
-            (map #(if (map? (second %1))
-                         (assoc (assoc (second %1) :class %2) 1 %1)
-                         (apply conj [(first %1)] {:class %2} (drop 1 %1))
-                       ) tds colclasses
+            (map #(if (map? (second %1))                               ; If <td> vector has an attribute map as a second element
+                    (assoc-in %1 [1 :class] %2)                        ; insert class attribute into that map
+                    (apply conj [(first %1)] {:class %2} (drop 1 %1))  ; otherwise insert a new attribute map between the first an the second element
+                  ) tds colclasses
             )
             tds
           )
@@ -54,8 +54,8 @@
   )
 )
 
-; rows - sequence of [type-fn field info]
+; rows - sequence of [type-fn :field info]
 ; for every row add (:field params) as the last element
 (defn add-values-to-form-rows [rows params]
-  rows
+  (map-indexed #(conj %2 ((%2 1) params)) rows)
 )
