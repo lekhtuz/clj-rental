@@ -57,5 +57,5 @@
 ; rows - sequence of [type-fn :field info]
 ; for every row add (:field params) as the last element
 (defn add-values-to-form-rows [rows params]
-  (map-indexed #(conj %2 ((%2 1) params)) rows)
+  (map #(conj % ((% 1) params)) rows)
 )

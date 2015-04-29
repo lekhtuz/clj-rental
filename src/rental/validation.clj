@@ -1,7 +1,7 @@
 (ns rental.validation
   (:require
     [clojure.tools.logging :as log :refer [info]]
-    [clojure.string :as str]
+    [clojure.string :as str :refer [join]]
     [rental.schema :as schema :refer [load-user]]
   )
 )
@@ -11,14 +11,18 @@
 (defn add-error [form-info field error-message]
   (log/info "add-error: field =" field ", error-message =" error-message ", form-info =" form-info)
   (assoc-in form-info [:errors field] 
-            (if-let [message-list ((:errors form-info) field)]
+            (if-let [message-list (-> form-info :errors field)]
               (conj message-list error-message)
-              [error-message])
+              [error-message]
+            )
   )
 )
 
-(defn has-errors [form-info]
-  (seq (:errors form-info))
+(defn has-errors 
+  ([form-info]
+    (seq (:errors form-info)))
+  ([form-info field]
+    (seq (-> form-info :errors field)))
 )
 
 (defn print-error [{ :keys [ class errors ]} field]
@@ -31,7 +35,37 @@
   )
   ([form-info field value message]
     (log/info "reject-if-empty: field =" field ", value =" value ", message =" message ", form-info =" form-info)
-    (if (str/blank? value) (add-error form-info field message) form-info)
+    (if (empty? value) (add-error form-info field message) form-info)
+  )
+)
+
+(defn valid-pattern
+  ([form-info field value pattern]
+    (valid-pattern form-info field value (str "Field \"" (name field) "\" does not match the required pattern."))
+  )
+  ([form-info field value pattern message]
+    (log/info "valid-pattern: field =" field ", value =" value ", message =" message ", form-info =" form-info)
+    (if-not (re-matches pattern value) (add-error form-info field message) form-info)
+  )
+)
+
+(defn valid-email
+  ([form-info field value]
+    (valid-email form-info field value (str "Field \"" (name field) "\" is not a valid email"))
+  )
+  ([form-info field value message]
+    (log/info "valid-email: field =" field ", value =" value ", message =" message ", form-info =" form-info)
+    (valid-pattern form-info field value #".*@.*" message)
+  )
+)
+
+(defn valid-zipcode
+  ([form-info field value]
+    (valid-zipcode form-info field value (str "Field \"" (name field) "\" is not a valid zip code"))
+  )
+  ([form-info field value message]
+    (log/info "valid-email: field =" field ", value =" value ", message =" message ", form-info =" form-info)
+    (valid-pattern form-info field value #"\d{5}" message)
   )
 )
 
@@ -41,7 +75,7 @@
   )
   ([form-info field value message]
     (log/info "username-exists: field =" field ", value =" value ", message =" message ", form-info =" form-info)
-    (if (schema/load-user value) (add-error form-info field message) form-info)
+    (if (and (not (has-errors form-info field)) (schema/load-user value)) (add-error form-info field message) form-info)
   )
 )
 

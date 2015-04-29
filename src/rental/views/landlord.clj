@@ -18,7 +18,9 @@
      :password [validation/reject-if-empty]
      :firstname [validation/reject-if-empty]
      :lastname [validation/reject-if-empty]
-     :email [validation/reject-if-empty]
+     :email [validation/valid-email]
+     :address1 [validation/reject-if-empty]
+     :zipcode [validation/valid-zipcode]
     }
   )
 )
@@ -32,6 +34,8 @@
    [email-field :email "Email"]
    [text-field :address1 "Address"]
    [text-field :address2 ""]
+   [#(drop-down %1 (geonames/get-states-seq) %2) :state "State"]
+   [text-field :zipcode "Zip code"]
   ]
 )
 
@@ -54,14 +58,6 @@
       (form-to [ :post "" ]
         [:table
          (map (partial layout/form-row registration-column-classes form-info) (layout/add-values-to-form-rows registration-template params))
-         [:tr
-          [:td {:class "left-td-label"} (label "state" "State")]
-          [:td {:class "right-td-field"} (drop-down "state" (geonames/get-states-seq))]
-         ]
-         [:tr
-          [:td {:class "left-td-label"} (label "zipcode" "Zip Code")]
-          [:td {:class "right-td-field"} (text-field "zipcode")]
-         ]
          [:tr
            [:td {:colspan 2 :align "center"} (submit-button "Register")]
          ]
