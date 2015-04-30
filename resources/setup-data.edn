@@ -13,7 +13,7 @@
                                    :rental.schema.address/address1 "1600 Pennsylvania Avenue NW"
                                    :rental.schema.address/city "Washington"
                                    :rental.schema.address/state "DC"
-                                   :rental.schema.address/zipcode 20500
+                                   :rental.schema.address/zipcode "20500"
                                    }
  }
 

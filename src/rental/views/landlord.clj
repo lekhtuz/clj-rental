@@ -58,6 +58,11 @@
       ]
       (form-to [ :post "" ]
         [:table
+         (if (validation/has-errors form-info :form)
+           [:tr
+             [:td {:colspan 2 :align "center"} (validation/print-error form-info :form)]
+           ]
+         )
          (map (partial layout/form-row layout/form-column-classes form-info) (layout/add-values-to-form-rows registration-template params))
          [:tr
            [:td {:colspan 2 :align "center"} (submit-button "Register")]
@@ -75,11 +80,16 @@
     (if (validation/has-errors form-info)
       (register-view form-info params)
       (do
-        (schema/create-user params)
-        (layout/common 
-          (h/html 
-	           [:h1 "Landlord account created"]
-	           [:br] (h-e/link-to "/login" "Log into your new account")
+        (let [dbresult (schema/create-user (assoc params :usertype :rental.auth/role-landlord))]
+          (log/info "register: dbresult =" dbresult)
+          (if (:result dbresult)
+            (layout/common 
+              (h/html 
+	               [:h1 "Landlord account created"]
+	               [:br] (h-e/link-to "/login" "Log into your new account")
+              )
+            )
+            (register-view (validation/add-error form-info :form "Database error occured while saving user") params)
           )
         )
 	    )

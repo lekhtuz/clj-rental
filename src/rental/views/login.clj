@@ -29,7 +29,7 @@
   (log/info "login-box: form-info =" form-info)
   (form-to [ :post "/login" ]
     [:table
-     (if-not (nil? (-> form-info :errors :form))
+     (if (validation/has-errors form-info :form)
        [:tr
          [:td {:colspan 2 :align "center"} (validation/print-error form-info :form)]
        ]
