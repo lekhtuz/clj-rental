@@ -75,7 +75,7 @@
   )
   ([form-info field value message]
     (log/info "username-exists: field =" field ", value =" value ", message =" message ", form-info =" form-info)
-    (if (and (not (has-errors form-info field)) (schema/load-user value)) (add-error form-info field message) form-info)
+    (if (or (has-errors form-info field) (not (schema/load-user value))) form-info (add-error form-info field message))
   )
 )
 

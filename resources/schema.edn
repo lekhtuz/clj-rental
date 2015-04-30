@@ -113,7 +113,7 @@
  ; Address line 1 attribute
  {
   :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema.address/line1
+  :db/ident :rental.schema.address/address1
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "Address line 1"
@@ -123,7 +123,7 @@
  ; Address line 2 attribute
  {
   :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema.address/line2
+  :db/ident :rental.schema.address/address2
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "Address line 2"

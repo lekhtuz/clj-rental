@@ -2,6 +2,7 @@
   (:require
     [clojure.edn :refer [read-string] :rename { read-string edn-read-string }]
     [clojure.pprint :refer [pprint]]
+    [clojure.set :as set :refer [map-invert]]
     [clojure.tools.logging :as log :refer [info]]
     [datomic.api :as d]
     [carica.core :as cc]
@@ -15,6 +16,17 @@
 ;(def insert-admin '({:db/id #db/id[:db.part/user] :rental.schema/usertype :rental.schema.usertype/admin :rental.schema/username "admin" :rental.schema/password "password"}))
 
 (def uri (cc/config ::db-url))
+
+; Mapping between application roles and schema usertype
+(def role-usertype
+  {
+   :rental.auth/role-admin    :rental.schema.usertype/admin
+   :rental.auth/role-landlord :rental.schema.usertype/landlord
+   :rental.auth/role-tenant   :rental.schema.usertype/tenant
+  }
+)
+
+(def usertype-role (set/map-invert role-usertype))
 
 ; Retrieve connection every time it is needed. It is cached internally, so it's cheap.
 (defn conn []
@@ -77,8 +89,49 @@
         ent (d/entity (db) id)
       ]
       (log/info "load-user: id =" id ", ent =" ent ", (keys ent) =" (keys ent))
-      ent
+      (log/info "load-user: (class ent) =" (class ent))
+      (if-not (nil? ent) 
+        (let [
+              entity-as-map (into {} (d/touch ent))
+              entity-as-map1 (assoc entity-as-map ::usertype ((::usertype entity-as-map) usertype-role) :db/id (:db/id ent))
+              address (::mailing_address entity-as-map1)
+              entity-as-map2 (assoc entity-as-map1 ::mailing_address (into {} (d/touch address)))
+              entity-as-map3 (assoc-in entity-as-map2 [::mailing_address :db/id] (:db/id address))
+             ]
+          (log/info "load-user: (d/touch ent) =" (d/touch ent))
+          (log/info "load-user: (class (d/touch ent)) =" (class (d/touch ent)))
+          (log/info "load-user: entity-as-map =" entity-as-map)
+          (log/info "load-user: entity-as-map1 =" entity-as-map1)
+          (log/info "load-user: entity-as-map2 =" entity-as-map2)
+          (log/info "load-user: entity-as-map3 =" entity-as-map3)
+          entity-as-map3
+        )
+      )
   )
+)
+
+(defn create-user [params]
+  (log/info "create-user: params =" params)
+  @(d/transact (conn) [
+                       {
+                        :db/id #db/id[:db.part/user]
+                        ::usertype (-> params :usertype role-usertype)
+                        ::username (:username params)
+                        ::email (:email params)
+                        ::password (creds/hash-bcrypt (:password params))
+                        ::first_name (:firstname params)
+                        ::last_name (:lastname params)
+                        ::mailing_address {
+                                           :rental.schema.address/address1 (:address1 params)
+                                           :rental.schema.address/address2 (:address2 params)
+                                           :rental.schema.address/city (:city params)
+                                           :rental.schema.address/state (:state params)
+                                           :rental.schema.address/zipcode (:zipcode params)
+                                           }
+                        }
+                      ]
+  )
+  (log/info "create-user: user created")
 )
 
 (defn update-last-successful-login [id]

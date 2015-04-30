@@ -82,6 +82,10 @@ Can not delete and immediately create database, name is not available for 1 minu
 ; keys associated with entity's attributes (:rental.schema/usertype :rental.schema/password :rental.schema/username)
 (println (:rental.schema/username ent))
 ; prints the value of the attribute
+(d/touch ent)
+; generate all lazy attributes
+(into {} (d/touch ent))
+; convert to real map, id fields are missung. nested structures require it's own convertion.
 
 (def results (q '[:find ?e :where [_ :rental.schema/username ?e]] (db conn)))
 ; returns all usernames

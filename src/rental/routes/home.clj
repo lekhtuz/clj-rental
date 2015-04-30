@@ -12,7 +12,7 @@
                   [tenant :as tenant]
                   [landlord :as landlord]
                   [schema :as schema]
-                  [login :as login :refer [login-box login]])
+                  [login :as login :refer [login-box login-view]])
     [cemerick.friend :as friend]
     [ring.util.response :as resp]
     [cemerick.friend.credentials :as creds]
@@ -59,8 +59,8 @@
 
 (defroutes home-routes
   (GET "/" request (home request))
-  (GET "/login" [username login_failed] (if (= login_failed "Y") (login/login username) (login/login)))
-  (POST "/login" [username password] (login/login username password))
+  (GET "/login" [username login_failed] (if (= login_failed "Y") (login/login-view validation/default-form-info username) (login/login-view validation/default-form-info)))
+  (POST "/login" [username password] (constantly ""))
   (GET "/lregister" request (landlord/register-view validation/default-form-info {}))
   (POST "/lregister" {params :params} (landlord/register params))
   (context "/admin" request (friend/wrap-authorize admin-routes #{:rental.auth/role-admin}))

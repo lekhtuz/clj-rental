@@ -7,6 +7,7 @@
 ;    [ring.util.response :as resp]
     [rental.views.layout :as layout]
     [rental.geonames :as geonames]
+    [rental.schema :as schema]
     [rental.validation :as validation]
   )
 )
@@ -20,6 +21,7 @@
      :lastname [validation/reject-if-empty]
      :email [validation/valid-email]
      :address1 [validation/reject-if-empty]
+     :city [validation/reject-if-empty]
      :zipcode [validation/valid-zipcode]
     }
   )
@@ -34,12 +36,11 @@
    [email-field :email "Email"]
    [text-field :address1 "Address"]
    [text-field :address2 ""]
+   [text-field :city "City"]
    [#(drop-down %1 (geonames/get-states-seq) %2) :state "State"]
    [text-field :zipcode "Zip code"]
   ]
 )
-
-(def registration-column-classes ["left-td-label" "right-td-field"])
 
 (defn home []
   (layout/common (h/html [:h1 "Logged-in landlord"]))
@@ -57,7 +58,7 @@
       ]
       (form-to [ :post "" ]
         [:table
-         (map (partial layout/form-row registration-column-classes form-info) (layout/add-values-to-form-rows registration-template params))
+         (map (partial layout/form-row layout/form-column-classes form-info) (layout/add-values-to-form-rows registration-template params))
          [:tr
            [:td {:colspan 2 :align "center"} (submit-button "Register")]
          ]
@@ -73,10 +74,13 @@
     (log/info "register: form-info =" form-info)
     (if (validation/has-errors form-info)
       (register-view form-info params)
-      (layout/common 
-        (h/html 
-	         [:h1 "Landlord account created"]
-	         [:br] (h-e/link-to "/login" "Log into your new account")
+      (do
+        (schema/create-user params)
+        (layout/common 
+          (h/html 
+	           [:h1 "Landlord account created"]
+	           [:br] (h-e/link-to "/login" "Log into your new account")
+          )
         )
 	    )
     )

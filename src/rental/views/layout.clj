@@ -9,6 +9,8 @@
   )
 )
 
+(def form-column-classes ["left-td-label" "right-td-field"])
+
 (defn common [& body]
   (html5
     [:head
