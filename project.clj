@@ -1,21 +1,31 @@
 (defproject rental "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
-  :dependencies[
-                [clj-http "1.1.0"]
-                [org.clojure/clojure "1.6.0"]
-                [org.clojure/data.json "0.2.6"]
-                [org.clojure/tools.logging "0.3.1"]
-                [com.cemerick/friend "0.2.1"]
-                [compojure "1.3.1"]
-                [hiccup "1.0.5"]
-                [ring-server "0.3.1"]
-                [com.datomic/datomic-pro "0.9.5130" :exclusions [joda-time org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
-                [ch.qos.logback/logback-classic "1.1.2"]
-                [sonian/carica "1.1.0" :exclusions [cheshire]]
-               ]
+
+  :min-lein-version "2.0.0"
+  
+  :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
+                                 :username ~(System/getenv "DATOMIC_EMAIL")
+                                 :password ~(System/getenv "DATOMIC_KEY")}}
+
+  :dependencies [
+                 [clj-http "1.1.0"]
+                 [org.clojure/clojure "1.6.0"]
+                 [org.clojure/data.json "0.2.6"]
+                 [org.clojure/tools.logging "0.3.1"]
+                 [com.cemerick/friend "0.2.1"]
+                 [compojure "1.3.1"]
+                 [hiccup "1.0.5"]
+                 [ring-server "0.3.1"]
+                 [com.datomic/datomic-pro "0.9.5130" :exclusions [joda-time org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
+                 [ch.qos.logback/logback-classic "1.1.2"]
+                 [sonian/carica "1.1.0" :exclusions [cheshire]]
+                ]
+
   :jvm-opts ^:replace ["-Xmx1g" "-server"]
+
   :plugins [[lein-ring "0.8.13"]]
+
   :ring {
          :handler rental.handler/app
          :init rental.handler/init
