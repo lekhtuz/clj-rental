@@ -16,7 +16,7 @@
 
 ;(def insert-admin '({:db/id #db/id[:db.part/user] :rental.schema/usertype :rental.schema.usertype/admin :rental.schema/username "admin" :rental.schema/password "password"}))
 
-(def uri (cc/config ::db-url))
+(def uri ((cc/config ::db-key) (cc/config ::db-url)))
 
 ; Mapping between application roles and schema usertype
 (def role-usertype

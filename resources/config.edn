@@ -1,5 +1,9 @@
-{ 
- :rental.schema/db-url "datomic:dev://localhost:4334/rental"
+{
+ :rental.schema/db-key :local-dev
+ :rental.schema/db-url {
+                        :local-dev "datomic:dev://localhost:4334/rental"
+                        :heroku-postgres "datomic:sql://rental?jdbc:postgresql://ec2-107-20-222-114.compute-1.amazonaws.com:5432/dfh6nl4gob2b46?user=hmwpnscqbttjru&password=bJbxLd_v7s1VLOKlvaiCLmFkM8&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                       }
  :rental.schema/schema "schema.edn"
  :rental.schema/setup-data "setup-data.edn"
  

@@ -17,9 +17,10 @@
                  [compojure "1.3.1"]
                  [hiccup "1.0.5"]
                  [ring-server "0.3.1"]
-                 [com.datomic/datomic-pro "0.9.5130" :exclusions [joda-time org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
+                 [com.datomic/datomic-pro "0.9.5153" :exclusions [joda-time org.slf4j/slf4j-nop org.slf4j/slf4j-log4j12]]
                  [ch.qos.logback/logback-classic "1.1.2"]
                  [sonian/carica "1.1.0" :exclusions [cheshire]]
+                 [org.postgresql/postgresql "9.4-1201-jdbc41"] ; not sure if this is needed
                 ]
 
   :jvm-opts ^:replace ["-Xmx1g" "-server"]

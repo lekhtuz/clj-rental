@@ -52,7 +52,7 @@ Can not delete and immediately create database, name is not available for 1 minu
 (use '[cemerick.friend.credentials :as creds])
 (use '[datomic.api :as d])
 
-(def uri "datomic:dev://localhost:4334/rental")
+(def uri ((cc/config :rental.schema/db-key) (cc/config :rental.schema/db-url)))
 (def schema-tx (read-string {:readers *data-readers*} (slurp (first (cc/resources "schema.edn")))))
 (def setup-data-tx (read-string {:readers *data-readers*} (slurp (first (cc/resources "setup-data.edn")))))
 (def setup-data-encrypted-passwords-tx (map #(assoc % :rental.schema/password (creds/hash-bcrypt (:rental.schema/password %))) setup-data-tx))
@@ -64,7 +64,7 @@ Can not delete and immediately create database, name is not available for 1 minu
 @(d/transact conn schema-tx)
 @(d/transact conn setup-data-encrypted-passwords-tx)
 
-(def results (q '[:find ?e :where [?e :rental.schema/password "password"]] (db conn)))
+(def results (q '[:find ?e :where [?e :rental.schema/password (creds/hash-bcrypt "password")]] (db conn)))
 ; returns entities with password "password"
 (println results)
 ; returns Set of Vectors #<HashSet [[17592186045422], [17592186045421], [17592186045424], [17592186045423]]>
@@ -97,4 +97,7 @@ Can not delete and immediately create database, name is not available for 1 minu
 ; returns all passwords. note that distinct is automatically applied
 (println results)
 #<HashSet [[password]]>
+
+(d/get-database-names uri)
+; returns all databases. this requires * instead of database name in url: 
 
