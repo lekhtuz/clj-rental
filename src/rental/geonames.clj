@@ -38,7 +38,7 @@
                                                 }
                                     )
               ]
-          (log/info "load-states: status =" status ", body =" body)
+          (log/info "load-states: status =" status ", body =" (count body) " entries.")
           (if (= status (HttpServletResponse/SC_OK))
             (let [us-states ((json/read-str body) "geonames")]
               (log/info "load-states us-states =" (count us-states))
