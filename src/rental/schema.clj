@@ -31,17 +31,17 @@
 
 ; Retrieve connection every time it is needed. It is cached internally, so it's cheap.
 (defn conn []
-  (log/info "Connection request received. Calling d/connect...")
+  (log/info "conn: Connection request received. Calling d/connect...")
   (let [c (d/connect uri)]
-    (log/info "Connection retrieved" c)
+    (log/info "conn: Connection retrieved" c)
     c
   )
 )
 
 (defn db []
-  (log/info "Database request received. Calling d/db...")
+  (log/info "db: Database request received. Calling d/db...")
   (let [d (d/db (conn))]
-    (log/info "Database retrieved" d)
+    (log/info "db: Database retrieved" d)
     d
   )
 )
@@ -115,38 +115,40 @@
 
 (defn load-user [username]
   (log/info "load-user: username =" username)
-  (let [
-        id (ffirst (d/q '[:find ?e :in $ ?u :where [?e ::username ?u]] (db) username))
-        ent (d/entity (db) id)
-      ]
-      (log/info "load-user: (class ent) =" (class ent) ", id =" id ", ent =" ent ", (keys ent) =" (keys ent))
-      (if-not (nil? ent)
-        (merge {
-                :id (:db/id ent)
-                :usertype (-> ent ::usertype  usertype-role)
-                :username (::username ent)
-                :email (::email ent)
-                :password (::password ent)
-                :firstname (::first-name ent)
-                :lastname (::last-name ent)
-               }
-               (let [ address (::mailing-address ent) ]
-                 (log/info "load-user: address =" address)
-                 (if-not (nil? address)
-                   (let [touched-address (d/touch address)]
-                     {
-                      :address-id (:db/id address)
-                      :address1 (:rental.schema.address/address1 address)
-                      :address2 (:rental.schema.address/address2 address)
-                      :city (:rental.schema.address/city address)
-                      :state (:rental.schema.address/state address)
-                      :zipcode (:rental.schema.address/zipcode address)
-                     }
+  (if (seq username)
+    (let [
+          id (ffirst (d/q '[:find ?e :in $ ?u :where [?e ::username ?u]] (db) username))
+          ent (d/entity (db) id)
+        ]
+        (log/info "load-user: (class ent) =" (class ent) ", id =" id ", ent =" ent ", (keys ent) =" (keys ent))
+        (if-not (nil? ent)
+          (merge {
+                  :id (:db/id ent)
+                  :usertype (-> ent ::usertype  usertype-role)
+                  :username (::username ent)
+                  :email (::email ent)
+                  :password (::password ent)
+                  :firstname (::first-name ent)
+                  :lastname (::last-name ent)
+                 }
+                 (let [ address (::mailing-address ent) ]
+                   (log/info "load-user: address =" address)
+                   (if-not (nil? address)
+                     (let [touched-address (d/touch address)]
+                       {
+                        :address-id (:db/id address)
+                        :address1 (:rental.schema.address/address1 address)
+                        :address2 (:rental.schema.address/address2 address)
+                        :city (:rental.schema.address/city address)
+                        :state (:rental.schema.address/state address)
+                        :zipcode (:rental.schema.address/zipcode address)
+                       }
+                     )
                    )
                  )
-               )
+          )
         )
-      )
+    )
   )
 )
 

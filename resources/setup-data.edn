@@ -1,3 +1,5 @@
+; Data below is hardcoded in rental.test.schema.clj. Make sure both places are in sync
+
 [
  ; Default admin account
  {
