@@ -26,7 +26,7 @@
  ; First name attribute
  {
   :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema/first_name
+  :db/ident :rental.schema/first-name
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "First name"
@@ -37,7 +37,7 @@
  ; Last name attribute
  {
   :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema/last_name
+  :db/ident :rental.schema/last-name
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "Last name"
@@ -78,7 +78,7 @@
  ; Mailing address attribute
  {
   :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema/mailing_address
+  :db/ident :rental.schema/mailing-address
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one
   :db/isComponent true

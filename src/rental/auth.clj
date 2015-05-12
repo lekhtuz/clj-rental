@@ -12,7 +12,7 @@
   (log/info "authenticate: username =" username)
   (if (seq username)
     (if-let [ ent (load-user username) ]
-      { :username username :password (:rental.schema/password ent) :rental.schema/db-entity ent :roles #{(:rental.schema/usertype ent)} }
+      { :username username :password (:password ent) :rental.schema/db-entity ent :roles #{(:usertype ent)} }
     )
   )
 )

@@ -6,9 +6,9 @@
 	 :rental.schema/username "admin"
 	 :rental.schema/email "admin@admin.com"
 	 :rental.schema/password "password"
-	 :rental.schema/first_name "Barak"
-	 :rental.schema/last_name "Obama"
-	 :rental.schema/mailing_address  {
+	 :rental.schema/first-name "Barak"
+	 :rental.schema/last-name "Obama"
+	 :rental.schema/mailing-address  {
                                    :db/id #db/id[:db.part/user]
                                    :rental.schema.address/address1 "1600 Pennsylvania Avenue NW"
                                    :rental.schema.address/city "Washington"
@@ -24,8 +24,8 @@
 	 :rental.schema/username "demo-admin"
 	 :rental.schema/email "demo-admin@admin.com"
 	 :rental.schema/password "password"
-	 :rental.schema/first_name "FirstDemo"
-	 :rental.schema/last_name "LastDemo"
+	 :rental.schema/first-name "FirstDemo"
+	 :rental.schema/last-name "LastDemo"
  }
 
  {
@@ -34,8 +34,8 @@
 	 :rental.schema/username "demo-landlord"
 	 :rental.schema/email "demo-landlord@admin.com"
 	 :rental.schema/password "password"
-	 :rental.schema/first_name "FirstDemo"
-	 :rental.schema/last_name "LastDemo"
+	 :rental.schema/first-name "FirstDemo"
+	 :rental.schema/last-name "LastDemo"
  }
 
  {
@@ -44,7 +44,7 @@
 	 :rental.schema/username "demo-tenant"
 	 :rental.schema/email "demo-tenant@admin.com"
 	 :rental.schema/password "password"
-	 :rental.schema/first_name "FirstDemo"
-	 :rental.schema/last_name "LastDemo"
+	 :rental.schema/first-name "FirstDemo"
+	 :rental.schema/last-name "LastDemo"
  }
 ]

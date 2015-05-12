@@ -120,13 +120,31 @@
         ent (d/entity (db) id)
       ]
       (log/info "load-user: (class ent) =" (class ent) ", id =" id ", ent =" ent ", (keys ent) =" (keys ent))
-      (if-not (nil? ent) 
-        (let [
-              address (::mailing_address ent)
-              address (if-not (nil? address) { ::mailing_address (conj (into {} (d/touch address)) { :db/id (:db/id address) }) })
-             ]
-          (log/info "load-user: address =" address)
-          (merge (into {} (d/touch ent)) address)
+      (if-not (nil? ent)
+        (merge {
+                :id (:db/id ent)
+                :usertype (-> ent ::usertype  usertype-role)
+                :username (::username ent)
+                :email (::email ent)
+                :password (::password ent)
+                :firstname (::first-name ent)
+                :lastname (::last-name ent)
+               }
+               (let [ address (::mailing-address ent) ]
+                 (log/info "load-user: address =" address)
+                 (if-not (nil? address)
+                   (let [touched-address (d/touch address)]
+                     {
+                      :address-id (:db/id address)
+                      :address1 (:rental.schema.address/address1 address)
+                      :address2 (:rental.schema.address/address2 address)
+                      :city (:rental.schema.address/city address)
+                      :state (:rental.schema.address/state address)
+                      :zipcode (:rental.schema.address/zipcode address)
+                     }
+                   )
+                 )
+               )
         )
       )
   )
@@ -143,9 +161,9 @@
             ::username (:username params)
             ::email (:email params)
             ::password (creds/hash-bcrypt (:password params))
-            ::first_name (:firstname params)
-            ::last_name (:lastname params)
-            ::mailing_address {
+            ::first-name (:firstname params)
+            ::last-name (:lastname params)
+            ::mailing-address {
                                :rental.schema.address/address1 (:address1 params)
                                :rental.schema.address/address2 (:address2 params)
                                :rental.schema.address/city (:city params)

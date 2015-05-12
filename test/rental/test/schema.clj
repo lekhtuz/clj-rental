@@ -11,22 +11,27 @@
 
 (deftest test-schema
   (testing "Testing delete database..."
-           (is (delete-database))
+;           (is (delete-database))
   )
 
   (log/info "Waiting 60 seconds for the database name to become available...")
-  (. Thread sleep 60000)
+;  (. Thread sleep 60000)
 
   (testing "Testing create database..."
-           (is (create-database))
+;           (is (create-database))
   )
 
   (testing "Testing load-user..."
            (is (nil? (load-user "user-does-not-exist")))
            (let [ent (load-user "admin")]
              (log/info "ent =" ent)
-             (is (= (:rental.schema/username ent) "admin"))
-             (is (= (:rental.schema/usertype ent) :rental.auth/role-admin))
+             (is (= (:username ent) "admin"))
+             (is (= (:usertype ent) :rental.auth/role-admin))
+           )
+           (let [ent (load-user "demo-admin")]
+             (log/info "ent =" ent)
+             (is (= (:username ent) "demo-admin"))
+             (is (= (:usertype ent) :rental.auth/role-admin))
            )
   )
 )
