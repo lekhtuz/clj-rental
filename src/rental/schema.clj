@@ -62,7 +62,7 @@
 )
 
 (defn transact-data [data]
-  (log/info "transact-data: datae =" data)
+  (log/info "transact-data: data =" data)
   (try
     (let [future @(d/transact (conn) data)]
       (log/info "transact-data: future =" future)
@@ -120,32 +120,32 @@
           id (ffirst (d/q '[:find ?e :in $ ?u :where [?e ::username ?u]] (db) username))
           ent (d/entity (db) id)
         ]
-        (log/info "load-user: (class ent) =" (class ent) ", id =" id ", ent =" ent ", (keys ent) =" (keys ent))
+        (log/info "load-user: (class ent) =" (class ent) ", id =" id ", ent =" ent ", (keys ent) =" (keys ent) ", (::mailing-address ent) =" (::mailing-address ent))
         (if-not (nil? ent)
-          (merge {
-                  :id (:db/id ent)
-                  :usertype (-> ent ::usertype  usertype-role)
-                  :username (::username ent)
-                  :email (::email ent)
-                  :password (::password ent)
-                  :firstname (::first-name ent)
-                  :lastname (::last-name ent)
-                 }
-                 (let [ address (::mailing-address ent) ]
-                   (log/info "load-user: address =" address)
-                   (if-not (nil? address)
-                     (let [touched-address (d/touch address)]
-                       {
-                        :address-id (:db/id address)
-                        :address1 (:rental.schema.address/address1 address)
-                        :address2 (:rental.schema.address/address2 address)
-                        :city (:rental.schema.address/city address)
-                        :state (:rental.schema.address/state address)
-                        :zipcode (:rental.schema.address/zipcode address)
-                       }
-                     )
-                   )
-                 )
+          (merge 
+            (if-let [ address (::mailing-address ent) ]
+              (merge
+                (if-let [address2 (:rental.schema.address/address2 address)]
+                  { :address2 address2 }
+                )
+                {
+                 :address-id (:db/id address)
+                 :address1 (:rental.schema.address/address1 address)
+                 :city (:rental.schema.address/city address)
+                 :state (:rental.schema.address/state address)
+                 :zipcode (:rental.schema.address/zipcode address)
+                }
+              )
+            )
+            {
+             :id (:db/id ent)
+             :usertype (-> ent ::usertype  usertype-role)
+             :username (::username ent)
+             :email (::email ent)
+             :password (::password ent)
+             :firstname (::first-name ent)
+             :lastname (::last-name ent)
+            }
           )
         )
     )
@@ -154,30 +154,40 @@
 
 (defn create-user [params]
   (log/info "create-user: params =" params)
-  (let [{ :keys [ result ] :as transact-result } 
-        (transact-data
-          [
-           {
-            :db/id #db/id[:db.part/user]
-            ::usertype (-> params :usertype role-usertype)
-            ::username (:username params)
-            ::email (:email params)
-            ::password (creds/hash-bcrypt (:password params))
-            ::first-name (:firstname params)
-            ::last-name (:lastname params)
-            ::mailing-address {
-                               :rental.schema.address/address1 (:address1 params)
-                               :rental.schema.address/address2 (:address2 params)
-                               :rental.schema.address/city (:city params)
-                               :rental.schema.address/state (:state params)
-                               :rental.schema.address/zipcode (:zipcode params)
-                              }
-            }
-          ]
-        )
-       ]
-    (log/info "create-user: data transacted. transact-result =" transact-result)
-    result
+  (if (seq params)
+    (let [{ :keys [ result ] :as transact-result } 
+          (transact-data
+            [
+             (merge-with
+               merge 
+               {
+                :db/id #db/id[:db.part/user]
+                ::usertype (-> params :usertype role-usertype)
+                ::username (:username params)
+                ::email (:email params)
+                ::password (creds/hash-bcrypt (:password params))
+                ::first-name (:firstname params)
+                ::last-name (:lastname params)
+               }
+               (if (seq (:address1 params)) 
+                 { ::mailing-address {
+                                      :rental.schema.address/address1 (:address1 params)
+                                      :rental.schema.address/city (:city params)
+                                      :rental.schema.address/state (:state params)
+                                      :rental.schema.address/zipcode (:zipcode params)
+                                     }
+                 }
+               )
+               (if (seq (:address2 params))
+                 { ::mailing-address { :rental.schema.address/address2 (:address2 params) } }
+               )
+             )
+            ]
+          )
+         ]
+      (log/info "create-user: data transacted. transact-result =" transact-result)
+      result
+    )
   )
 )
 
