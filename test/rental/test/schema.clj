@@ -3,11 +3,20 @@
     [clojure.test]
     [clojure.tools.logging :as log :refer [info]]
     [cemerick.friend.credentials :as creds]
-    [rental.schema :refer [create-database delete-database load-user create-user]]
+    [clj-time.local :as l :refer [to-local-date-time]]
+    [rental.schema :refer [create-database delete-database load-user create-user update-last-successful-login update-last-failed-login]]
   )
   (:import
 ;    [java.util Thread]
   )
+)
+
+(def create-user-test-cases
+  [
+   { :username "test-admin",    :password "password", :usertype :rental.auth/role-admin,    :firstname "Fadmin",    :lastname "Ladmin",    :email "test-admin@email.com" }
+   { :username "test-landlord", :password "password", :usertype :rental.auth/role-landlord, :firstname "Flandlord", :lastname "Llandlord", :email "test-landlord@email.com", :address1 "1 Main St", :city "Franklin Lakes", :state "NJ", :zipcode "07417" }
+   { :username "test-tenant",   :password "password", :usertype :rental.auth/role-tenant,   :firstname "Ftenant",   :lastname "Ltenant",   :email "test-tenant@email.com",   :address1 "1 Mountain View Dr", :address2 "right hand side of the street", :city "Woodland Park", :state "NJ", :zipcode "07424" }
+  ]
 )
 
 (defn- same-user? [original copy]
@@ -31,7 +40,7 @@
            (is (delete-database))
   )
 
-  (log/info "Waiting 60 seconds for the database name to become available...")
+  (log/info "Waiting 60 seconds for the database name to become available again...")
   (. Thread sleep 60000)
 
   (testing "Testing create database..."
@@ -87,49 +96,23 @@
   (testing "Testing create-user..."
            (is (nil? (create-user nil)))
 
-           (let [params {
-                         :username "test-admin"
-                         :password "password"
-                         :usertype :rental.auth/role-admin
-                         :firstname "Fadmin"
-                         :lastname "Ladmin"
-                         :email "test-admin@email.com"
-                        }]
-             (is (create-user params))
-             (same-user? params (load-user (:username params)))
-           )
-
-           (let [params {
-                         :username "test-landlord"
-                         :password "password"
-                         :usertype :rental.auth/role-landlord
-                         :firstname "Flandlord"
-                         :lastname "Llandlord"
-                         :email "test-landlord@email.com"
-                         :address1 "1 Main St"
-                         :city "Franklin Lakes"
-                         :state "NJ"
-                         :zipcode "07417"
-                        }]
-             (is (create-user params))
-             (same-user? params (load-user (:username params)))
-           )
-
-           (let [params {
-                         :username "test-tenant"
-                         :password "password"
-                         :usertype :rental.auth/role-tenant
-                         :firstname "Ftenant"
-                         :lastname "Ltenant"
-                         :email "test-tenant@email.com"
-                         :address1 "1 Mountain View Dr"
-                         :address2 "right hand side of the street"
-                         :city "Woodland Park"
-                         :state "NJ"
-                         :zipcode "07424"
-                        }]
-             (is (create-user params))
-             (same-user? params (load-user (:username params)))
+           (doseq [ test-user create-user-test-cases]
+             (log/info "Test user - " test-user)
+             (is (create-user test-user))
+             (if-let [retrieved-user (load-user (:username test-user))]
+               (do
+                 (same-user? test-user retrieved-user)
+                 (update-last-successful-login (:id retrieved-user))
+                 (update-last-failed-login (:id retrieved-user))
+                 
+                 (let [{:keys [last-successful-login last-failed-login]} (load-user (:username test-user))]
+                   (log/info "last-successful-login =" (l/to-local-date-time last-successful-login))
+                   (is (not (nil? last-successful-login)))
+                   (log/info "last-failed-login =" (l/to-local-date-time last-failed-login))
+                   (is (not (nil? last-failed-login)))
+                 )
+               )
+             )
            )
   )
 )

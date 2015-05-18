@@ -10,6 +10,7 @@
 
   :dependencies [
                  [clj-http "1.1.0"]
+                 [clj-time "0.9.0"]
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/tools.logging "0.3.1"]

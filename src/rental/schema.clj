@@ -122,7 +122,13 @@
         ]
         (log/info "load-user: (class ent) =" (class ent) ", id =" id ", ent =" ent ", (keys ent) =" (keys ent) ", (::mailing-address ent) =" (::mailing-address ent))
         (if-not (nil? ent)
-          (merge 
+          (merge
+            (if-let [last-successful-login (::last-successful-login ent)]
+              { :last-successful-login last-successful-login }
+            )
+            (if-let [last-failed-login (::last-failed-login ent)]
+              { :last-failed-login last-failed-login }
+            )
             (if-let [ address (::mailing-address ent) ]
               (merge
                 (if-let [address2 (:rental.schema.address/address2 address)]
@@ -195,4 +201,10 @@
   (log/info "update-last-successful-login: id =" id)
   (transact-data [{:db/id id ::last-successful-login (java.util.Date.)}])
   (log/info "update-last-successful-login: updated")
+)
+
+(defn update-last-failed-login [id]
+  (log/info "update-last-failed-login: id =" id)
+  (transact-data [{:db/id id ::last-failed-login (java.util.Date.)}])
+  (log/info "update-last-failed-login: updated")
 )
