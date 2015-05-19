@@ -1,10 +1,11 @@
 (ns rental.test.schema
   (:use
     [clojure.test]
+    [clojure.pprint :refer [pprint]]
     [clojure.tools.logging :as log :refer [info]]
     [cemerick.friend.credentials :as creds]
     [clj-time.local :as l :refer [to-local-date-time]]
-    [rental.schema :refer [create-database delete-database load-user create-user update-last-successful-login update-last-failed-login]]
+    [rental.schema :refer [create-rental-database delete-rental-database load-user create-user update-last-successful-login update-last-failed-login]]
   )
   (:import
 ;    [java.util Thread]
@@ -26,8 +27,8 @@
   (is (= (:username copy) (:username original)))
   (is (creds/bcrypt-verify (:password original) (:password copy)))
   (is (= (:usertype copy) (:usertype original)))
-  (is (= (:firstname copy) (:firstname original)))
-  (is (= (:lastname copy) (:lastname original)))
+  (is (= (:first-name copy) (:firstname original)))
+  (is (= (:last-name copy) (:lastname original)))
   (is (= (:address1 copy) (:address1 original)))
   (is (= (:address2 copy) (:address2 original)))
   (is (= (:city copy) (:city original)))
@@ -37,58 +38,58 @@
 
 (deftest test-schema
   (testing "Testing delete database..."
-           (is (delete-database))
+           (is (delete-rental-database))
   )
 
   (log/info "Waiting 60 seconds for the database name to become available again...")
   (. Thread sleep 60000)
 
   (testing "Testing create database..."
-           (is (create-database))
+           (is (create-rental-database))
   )
 
   (testing "Testing load-user..."
-           (is (nil? (load-user "user-does-not-exist")))
-           (is (nil? (load-user nil)))
+           (is (empty? (load-user "user-does-not-exist")))
+           (is (empty? (load-user nil)))
 
            (let [ent (load-user "admin")]
-             (log/info "ent =" ent)
+             (log/info "ent =" (with-out-str (pprint ent)))
              (is (seq ent))
              (is (= (:username ent) "admin"))
              (is (= (:usertype ent) :rental.auth/role-admin))
-             (is (= (:firstname ent) "Barak"))
-             (is (= (:lastname ent) "Obama"))
+             (is (= (:first-name ent) "Barak"))
+             (is (= (:last-name ent) "Obama"))
              (is (= (:city ent) "Washington"))
              (is (= (:state ent) "DC"))
            )
 
            (let [ent (load-user "demo-admin")]
-             (log/info "ent =" ent)
+             (log/info "ent =" (with-out-str (pprint ent)))
              (is (seq ent))
              (is (= (:username ent) "demo-admin"))
              (is (= (:usertype ent) :rental.auth/role-admin))
-             (is (= (:firstname ent) "FirstDemo"))
-             (is (= (:lastname ent) "LastDemo"))
+             (is (= (:first-name ent) "FirstDemo"))
+             (is (= (:last-name ent) "LastDemo"))
              (is (nil? (:address1 ent)))
            )
 
            (let [ent (load-user "demo-landlord")]
-             (log/info "ent =" ent)
+             (log/info "ent =" (with-out-str (pprint ent)))
              (is (seq ent))
              (is (= (:username ent) "demo-landlord"))
              (is (= (:usertype ent) :rental.auth/role-landlord))
-             (is (= (:firstname ent) "FirstDemo"))
-             (is (= (:lastname ent) "LastDemo"))
+             (is (= (:first-name ent) "FirstDemo"))
+             (is (= (:last-name ent) "LastDemo"))
              (is (nil? (:address1 ent)))
            )
 
            (let [ent (load-user "demo-tenant")]
-             (log/info "ent =" ent)
+             (log/info "ent =" (with-out-str (pprint ent)))
              (is (seq ent))
              (is (= (:username ent) "demo-tenant"))
              (is (= (:usertype ent) :rental.auth/role-tenant))
-             (is (= (:firstname ent) "FirstDemo"))
-             (is (= (:lastname ent) "LastDemo"))
+             (is (= (:first-name ent) "FirstDemo"))
+             (is (= (:last-name ent) "LastDemo"))
              (is (nil? (:address1 ent)))
            )
   )

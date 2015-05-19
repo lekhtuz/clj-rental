@@ -65,7 +65,7 @@ Can not delete and immediately create database, name is not available for 1 minu
 @(d/transact conn setup-data-encrypted-passwords-tx)
 
 (def results (q '[:find ?e :where [?e :rental.schema/password (creds/hash-bcrypt "password")]] (db conn)))
-; returns entities with password "password"
+; returns entities with password "password" or #{} - empty set
 (println results)
 ; returns Set of Vectors #<HashSet [[17592186045422], [17592186045421], [17592186045424], [17592186045423]]>
 
@@ -85,7 +85,7 @@ Can not delete and immediately create database, name is not available for 1 minu
 (d/touch ent)
 ; generate all lazy attributes
 (into {} (d/touch ent))
-; convert to real map, id fields are missung. nested structures require it's own convertion.
+; convert to real map, id fields are missing. nested structures require it's own conversion.
 
 (def results (q '[:find ?e :where [_ :rental.schema/username ?e]] (db conn)))
 ; returns all usernames
@@ -99,5 +99,5 @@ Can not delete and immediately create database, name is not available for 1 minu
 #<HashSet [[password]]>
 
 (d/get-database-names uri)
-; returns all databases. this requires * instead of database name in url: 
+; returns sequence with all databases. this requires * instead of database name in url: 
 

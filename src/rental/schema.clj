@@ -2,9 +2,9 @@
   (:require
     [clojure.edn :refer [read-string] :rename { read-string edn-read-string }]
     [clojure.pprint :refer [pprint]]
-    [clojure.set :as set :refer [map-invert]]
+    [clojure.set :as set :refer [map-invert rename-keys]]
     [clojure.tools.logging :as log :refer [info]]
-    [datomic.api :as d]
+    [datomic.api :as d :refer [q connect transact create-database delete-database entity]]
     [carica.core :as cc]
     [cemerick.friend.credentials :as creds]
   )
@@ -28,6 +28,20 @@
 )
 
 (def usertype-role (set/map-invert role-usertype))
+
+; Mapping between application and database address keys
+(def address-dbaddress
+  { 
+   :address-id :db/id
+   :address1   :rental.schema.address/address1
+   :address2   :rental.schema.address/address2
+   :city       :rental.schema.address/city
+   :state      :rental.schema.address/state
+   :zipcode    :rental.schema.address/zipcode
+  }
+)
+
+(def dbaddress-address (set/map-invert address-dbaddress))
 
 ; Retrieve connection every time it is needed. It is cached internally, so it's cheap.
 (defn conn []
@@ -77,7 +91,7 @@
   )
 )
 
-(defn create-database []
+(defn create-rental-database []
   (log/info "create-database: uri =" uri)
   (try
     (if (d/create-database uri)
@@ -99,7 +113,7 @@
 )
 
 ; Function returns true, if database was deleted or did not exist, false if exception was thrown
-(defn delete-database []
+(defn delete-rental-database []
   (log/info "delete-database: uri =" uri)
   (try
     (if (d/delete-database uri)
@@ -113,48 +127,67 @@
   )
 )
 
+(defn load-all-users []
+  (log/info "load-all-users: started")
+)
+
+(defn run-query 
+  ([query]
+    (log/info "run-query: query =" query)
+    (d/q query (db))
+  )
+  ([query param]
+    (log/info "run-query: query =" query ", param =" param)
+    (d/q query (db) param)
+  )
+)
+
+; Convert a Datomic entity to a map, where keys correspond to the database attribute keys
+(defn convert-entity-to-map [ent]
+  (log/info "convert-entity-to-map: ent =" ent ", (keys ent) =" (keys ent))
+  (reduce
+    #(assoc %1 %2 (%2 ent))
+    {:db/id (:db/id ent)} (keys ent)
+  )
+)
+
+; Convert set of single element vectors #{ [id1] [id2]...} as returned by run-query to a set/vector/list of maps, where keys correspond to the database attribute keys
+(defn convert-ids-to-maps [ids]
+  (log/info "convert-ids-to-entity-maps: ids =" ids)
+  (reduce
+    #(conj %1 (convert-entity-to-map (d/entity (db) (first %2))))
+    #{} ids) ; change #{} to [] to return vector of maps, to '() to return list of maps
+)
+
+(defn convert-map-to-user [m]
+  (log/info "convert-map-to-user: m =" m)
+  ; The only reason I test m for nil is because of :usertype. Otherwise an empty map is beautifully generated despite of m being nil.
+  (if (seq m)
+    (dissoc ; cleanup
+      (merge
+        (if-let [last-successful-login (::last-successful-login m)]
+          { :last-successful-login last-successful-login }
+        )
+        (if-let [last-failed-login (::last-failed-login m)]
+          { :last-failed-login last-failed-login }
+        )
+        {
+         :usertype (-> m ::usertype  usertype-role)
+        }
+        (if-let [ address (::mailing-address m) ]
+          (set/rename-keys (convert-entity-to-map address) dbaddress-address)
+        )
+        (set/rename-keys m { :db/id :id, ::username :username, ::email :email, ::password :password, ::first-name :first-name, ::last-name :last-name })
+      )
+      :rental.schema/usertype :rental.schema/mailing-address
+    )
+  )
+)
+
 (defn load-user [username]
   (log/info "load-user: username =" username)
   (if (seq username)
-    (let [
-          id (ffirst (d/q '[:find ?e :in $ ?u :where [?e ::username ?u]] (db) username))
-          ent (d/entity (db) id)
-        ]
-        (log/info "load-user: (class ent) =" (class ent) ", id =" id ", ent =" ent ", (keys ent) =" (keys ent) ", (::mailing-address ent) =" (::mailing-address ent))
-        (if-not (nil? ent)
-          (merge
-            (if-let [last-successful-login (::last-successful-login ent)]
-              { :last-successful-login last-successful-login }
-            )
-            (if-let [last-failed-login (::last-failed-login ent)]
-              { :last-failed-login last-failed-login }
-            )
-            (if-let [ address (::mailing-address ent) ]
-              (merge
-                (if-let [address2 (:rental.schema.address/address2 address)]
-                  { :address2 address2 }
-                )
-                {
-                 :address-id (:db/id address)
-                 :address1 (:rental.schema.address/address1 address)
-                 :city (:rental.schema.address/city address)
-                 :state (:rental.schema.address/state address)
-                 :zipcode (:rental.schema.address/zipcode address)
-                }
-              )
-            )
-            {
-             :id (:db/id ent)
-             :usertype (-> ent ::usertype  usertype-role)
-             :username (::username ent)
-             :email (::email ent)
-             :password (::password ent)
-             :firstname (::first-name ent)
-             :lastname (::last-name ent)
-            }
-          )
-        )
-    )
+    (convert-map-to-user (first (convert-ids-to-maps (run-query '[:find ?e :in $ ?u :where [?e ::username ?u]] username))))
   )
 )
 
@@ -176,16 +209,7 @@
                 ::last-name (:lastname params)
                }
                (if (seq (:address1 params)) 
-                 { ::mailing-address {
-                                      :rental.schema.address/address1 (:address1 params)
-                                      :rental.schema.address/city (:city params)
-                                      :rental.schema.address/state (:state params)
-                                      :rental.schema.address/zipcode (:zipcode params)
-                                     }
-                 }
-               )
-               (if (seq (:address2 params))
-                 { ::mailing-address { :rental.schema.address/address2 (:address2 params) } }
+                 { ::mailing-address (set/rename-keys (select-keys params (keys address-dbaddress)) address-dbaddress) }
                )
              )
             ]

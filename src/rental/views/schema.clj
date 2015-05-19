@@ -2,9 +2,10 @@
   (:require
     [clojure.pprint :refer [pprint]]
     [clojure.tools.logging :as log :refer [info]]
-    [carica.core :as cc]
-    [rental.views.layout :as layout]
-    [rental.schema :as schema]
+    [carica.core :as cc :refer [config]]
+    [ring.util.response :as response :refer [redirect]]
+    [rental.views.layout :as layout :refer [common]]
+    [rental.schema :as schema :refer [create-rental-database delete-rental-database]]
     [hiccup.element :as h-e :refer [link-to unordered-list]]
   )
 )
@@ -30,12 +31,12 @@
 )
 
 (defn create-database []
-  (schema/create-database)
-  (ring.util.response/redirect "/schema")
+  (schema/create-rental-database)
+  (response/redirect "/schema")
 )
 
 (defn delete-database []
-  (schema/delete-database)
-  (ring.util.response/redirect "/schema")
+  (schema/delete-rental-database)
+  (response/redirect "/schema")
 )
 
