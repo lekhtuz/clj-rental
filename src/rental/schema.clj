@@ -29,6 +29,14 @@
 
 (def usertype-role (set/map-invert role-usertype))
 
+(def role-description
+  {
+   :rental.auth/role-admin    "Administrator"
+   :rental.auth/role-landlord "Landlord"
+   :rental.auth/role-tenant   "Tenant"
+  }
+)
+
 ; Mapping between application and database address keys
 (def address-dbaddress
   { 

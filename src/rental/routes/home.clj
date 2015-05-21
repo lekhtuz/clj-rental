@@ -47,6 +47,8 @@
 
 (defroutes admin-routes
     (GET "/" request (admin/home))
+    (GET "/newuser" request (admin/new-user))
+    (GET "/userinfo/:username" [username] (admin/user-maintenance username))
 )
 
 (defroutes landlord-routes
