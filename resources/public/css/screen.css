@@ -3,7 +3,7 @@
 body {
     color: #555;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 13px;
+    font-size: 12px
 }
 
 h1 {
@@ -31,4 +31,9 @@ h1 {
 
 .right-td-field {
 	text-align: left;
+}
+
+.bordered {
+    border-collapse: collapse;
+    border: 1px solid black;
 }

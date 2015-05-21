@@ -43,6 +43,10 @@
 
 (def dbaddress-address (set/map-invert address-dbaddress))
 
+; Queries defined here
+(def query-load-user '[:find ?e :in $ ?u :where [?e ::username ?u]])
+(def query-load-all-users '[:find ?e :in $ :where [?e ::username _]])
+
 ; Retrieve connection every time it is needed. It is cached internally, so it's cheap.
 (defn conn []
   (log/info "conn: Connection request received. Calling d/connect...")
@@ -127,10 +131,6 @@
   )
 )
 
-(defn load-all-users []
-  (log/info "load-all-users: started")
-)
-
 (defn run-query 
   ([query]
     (log/info "run-query: query =" query)
@@ -152,18 +152,24 @@
 )
 
 ; Convert set of single element vectors #{ [id1] [id2]...} as returned by run-query to a set/vector/list of maps, where keys correspond to the database attribute keys
-(defn convert-ids-to-maps [ids]
-  (log/info "convert-ids-to-entity-maps: ids =" ids)
-  (reduce
-    #(conj %1 (convert-entity-to-map (d/entity (db) (first %2))))
-    #{} ids) ; change #{} to [] to return vector of maps, to '() to return list of maps
+; Further single element conversion is performed by the optional function parameter
+(defn convert-ids-to-maps 
+  ([ids]
+    (convert-ids-to-maps ids (fn [param] param))
+  )
+  ([ids f]
+    (log/info "convert-ids-to-maps: ids =" ids ", f =" f)
+    (reduce
+      #(conj %1 (f (convert-entity-to-map (d/entity (db) (first %2)))))
+      #{} ids) ; change #{} to [] to return vector of maps, to '() to return list of maps
+  )
 )
 
 (defn convert-map-to-user [m]
   (log/info "convert-map-to-user: m =" m)
   ; The only reason I test m for nil is because of :usertype. Otherwise an empty map is beautifully generated despite of m being nil.
   (if (seq m)
-    (dissoc ; cleanup
+    (dissoc ; cleanup to remove db versions of the attribute keys
       (merge
         (if-let [last-successful-login (::last-successful-login m)]
           { :last-successful-login last-successful-login }
@@ -179,16 +185,26 @@
         )
         (set/rename-keys m { :db/id :id, ::username :username, ::email :email, ::password :password, ::first-name :first-name, ::last-name :last-name })
       )
-      :rental.schema/usertype :rental.schema/mailing-address
+      :rental.schema/usertype :rental.schema/mailing-address :rental.schema/last-successful-login :rental.schema/last-failed-login
     )
   )
+)
+
+(defn convert-ids-to-users [ids]
+  (log/info "convert-ids-to-users: ids =" ids)
+  (convert-ids-to-maps ids convert-map-to-user)
 )
 
 (defn load-user [username]
   (log/info "load-user: username =" username)
   (if (seq username)
-    (convert-map-to-user (first (convert-ids-to-maps (run-query '[:find ?e :in $ ?u :where [?e ::username ?u]] username))))
+    (convert-map-to-user (first (convert-ids-to-maps (run-query query-load-user username))))
   )
+)
+
+(defn load-all-users []
+  (log/info "load-all-users: started")
+  (convert-ids-to-users (run-query query-load-all-users))
 )
 
 (defn create-user [params]

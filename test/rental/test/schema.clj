@@ -5,7 +5,7 @@
     [clojure.tools.logging :as log :refer [info]]
     [cemerick.friend.credentials :as creds]
     [clj-time.local :as l :refer [to-local-date-time]]
-    [rental.schema :refer [create-rental-database delete-rental-database load-user create-user update-last-successful-login update-last-failed-login]]
+    [rental.schema :refer [create-rental-database delete-rental-database load-user create-user update-last-successful-login update-last-failed-login load-all-users]]
   )
   (:import
 ;    [java.util Thread]
@@ -114,6 +114,12 @@
                  )
                )
              )
+           )
+  )
+
+  (testing "Testing load all users..."
+           (let [users (load-all-users)]
+             (log/info "users =" (with-out-str (pprint users)))
            )
   )
 )

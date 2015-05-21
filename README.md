@@ -93,6 +93,12 @@ Can not delete and immediately create database, name is not available for 1 minu
 (println results)
 #<HashSet [[demo-user], [admin], [demo-landlord], [demo-admin]]>
 
+(def results (q '[:find ?e :where [?e :rental.schema/username _]] (db conn)))
+; returns all users
+
+(println results)
+#<HashSet 
+
 (def results (q '[:find ?e :where [_ :rental.schema/password ?e]] (db conn)))
 ; returns all passwords. note that distinct is automatically applied
 (println results)
