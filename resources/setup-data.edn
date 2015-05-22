@@ -6,6 +6,7 @@
 	 :db/id #db/id[:db.part/user]
 	 :rental.schema/usertype :rental.schema.usertype/admin
 	 :rental.schema/username "admin"
+	 :rental.schema/status :rental.schema.status/active
 	 :rental.schema/email "admin@admin.com"
 	 :rental.schema/password "password"
 	 :rental.schema/first-name "Barak"
@@ -24,6 +25,7 @@
 	 :db/id #db/id[:db.part/user]
 	 :rental.schema/usertype :rental.schema.usertype/admin
 	 :rental.schema/username "demo-admin"
+	 :rental.schema/status :rental.schema.status/active
 	 :rental.schema/email "demo-admin@admin.com"
 	 :rental.schema/password "password"
 	 :rental.schema/first-name "FirstDemo"
@@ -34,6 +36,7 @@
 	 :db/id #db/id[:db.part/user]
 	 :rental.schema/usertype :rental.schema.usertype/landlord
 	 :rental.schema/username "demo-landlord"
+	 :rental.schema/status :rental.schema.status/active
 	 :rental.schema/email "demo-landlord@admin.com"
 	 :rental.schema/password "password"
 	 :rental.schema/first-name "FirstDemo"
@@ -45,6 +48,7 @@
 	 :rental.schema/usertype :rental.schema.usertype/tenant
 	 :rental.schema/username "demo-tenant"
 	 :rental.schema/email "demo-tenant@admin.com"
+	 :rental.schema/status :rental.schema.status/active
 	 :rental.schema/password "password"
 	 :rental.schema/first-name "FirstDemo"
 	 :rental.schema/last-name "LastDemo"

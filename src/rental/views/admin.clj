@@ -1,9 +1,10 @@
 (ns rental.views.admin
   (:require
+    [clojure.string :as str :refer [join]]
     [clojure.tools.logging :as log :refer [info]]
     [hiccup.core :as h]
     [hiccup.element :as h-e :refer [link-to]]
-    [rental.schema :as schema :refer [load-all-users role-description]]
+    [rental.schema :as schema :refer [load-all-users role-description status-description]]
     [rental.views.layout :as layout]
   )
 )
@@ -22,6 +23,7 @@
         (reduce
           #(conj %1 [:tr.bordered
                      [:td.bordered (h-e/link-to (str "/admin/userinfo/" (:username %2)) (:username %2))]
+                     [:td.bordered (-> %2 :status schema/status-description)]
                      [:td.bordered (-> %2 :usertype schema/role-description)]
                      [:td.bordered (:first-name %2)]
                      [:td.bordered (:last-name %2)]
@@ -32,10 +34,11 @@
           [:table.bordered
            [:tr
             [:th.bordered "Username"]
+            [:th.bordered "Status"]
             [:th.bordered "Role"]
             [:th.bordered "First name"]
             [:th.bordered "Last name"]
-            [:th.bordered "Last login"]
+            [:th.bordered "Last successful login"]
             [:th.bordered "Last failed login"]
            ]
           ]
@@ -60,5 +63,29 @@
     [:h1 "User maintenance"]
     [:br]
     [:br]
+    (if-let [user (schema/load-user username)]
+      [:table
+       [:tr [:td.left-td-label "Username"][:td (:username user)] ]
+       [:tr [:td.left-td-label "Userid"][:td (:id user)] ]
+       [:tr [:td.left-td-label "Status"][:td (-> user :status schema/status-description)] ]
+       [:tr [:td.left-td-label "Role"][:td (-> user :usertype schema/role-description)] ]
+       [:tr [:td.left-td-label "First name"][:td (:first-name user)] ]
+       [:tr [:td.left-td-label "Last name"][:td (:last-name user)] ]
+       (if (:address1 user)
+         [:tr [:td.left-td-label "Address"][:td (str/join ", " [(:address1 user) (:address2 user) (:city user) (:state user) (:zipcode user)])] ]
+       )
+       [:tr [:td.left-td-label "Last successful login"][:td (if-let [tt (:last-successful-login user)] (.format date-formatter tt))] ]
+       [:tr [:td.left-td-label "Last failed login"][:td (if-let [tt (:last-failed-login user)] (.format date-formatter tt))] ]
+       [:tr 
+        [:td {:colspan "2"}
+         (h-e/link-to (str "/admin/useredit/" (:username user)) "[&nbsp;Edit&nbsp;]")
+         (h-e/link-to (str "/admin/userhistory/" (:username user)) "[&nbsp;History&nbsp;]")
+        ]
+       ]
+      ]
+      [:h1 "User does not exist"]
+    )
+    
+    (h-e/link-to "/admin" "Back to the user list")
   )
 )

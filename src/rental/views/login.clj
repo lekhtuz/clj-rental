@@ -19,10 +19,12 @@
 
 (defn record-successful-login [identity]
   (log/info "record-successful-login: started. identity =" identity)
-  (schema/update-last-successful-login (:db/id (:rental.schema/db-entity identity)))
+  (schema/update-last-successful-login (-> identity :current-user :id))
 )
 
 (defn record-failed-login [username]
+  (log/info "record-failed-login: started. username =" username)
+  (schema/update-last-failed-login username)
 )
 
 (defn login-box [form-info]

@@ -1,5 +1,6 @@
 (ns rental.handler
   (:require
+    [clojure.pprint :refer [pprint]]
     [clojure.tools.logging :as log :refer [info]]
     [cemerick.friend :as friend]
     (cemerick.friend [workflows :as workflows]
@@ -15,7 +16,7 @@
     [hiccup.middleware :refer [wrap-base-url]]
     [rental.routes.home :as home :refer [home-routes]]
     [rental.auth :as auth :refer [authenticate]]
-    [rental.schema :as schema]
+    [rental.schema :as schema :refer [update-last-failed-login]]
     [rental.geonames :as geonames]
     [rental.middleware :refer [wrap-log-request-response]]
   )
@@ -57,6 +58,7 @@
                                           resp/response
                                           (resp/status HttpServletResponse/SC_UNAUTHORIZED))
                             :credential-fn #(creds/bcrypt-credential-fn auth/authenticate %)
+                            :login-failure-handler auth/login-failure-handler
                             :workflows [(workflows/interactive-form)]}))
     (wrap-log-request-response "after wrap-base-url")
     (wrap-base-url)

@@ -14,9 +14,10 @@
 
 (def create-user-test-cases
   [
-   { :username "test-admin",    :password "password", :usertype :rental.auth/role-admin,    :firstname "Fadmin",    :lastname "Ladmin",    :email "test-admin@email.com" }
-   { :username "test-landlord", :password "password", :usertype :rental.auth/role-landlord, :firstname "Flandlord", :lastname "Llandlord", :email "test-landlord@email.com", :address1 "1 Main St", :city "Franklin Lakes", :state "NJ", :zipcode "07417" }
-   { :username "test-tenant",   :password "password", :usertype :rental.auth/role-tenant,   :firstname "Ftenant",   :lastname "Ltenant",   :email "test-tenant@email.com",   :address1 "1 Mountain View Dr", :address2 "right hand side of the street", :city "Woodland Park", :state "NJ", :zipcode "07424" }
+   { :username "test-admin",    :status :active, :password "password", :usertype :rental.auth/role-admin,    :firstname "Fadmin",    :lastname "Ladmin",    :email "test-admin@email.com" }
+   { :username "test-landlord", :status :active, :password "password", :usertype :rental.auth/role-landlord, :firstname "Flandlord", :lastname "Llandlord", :email "test-landlord@email.com", :address1 "1 Main St", :city "Franklin Lakes", :state "NJ", :zipcode "07417" }
+   { :username "test-tenant",   :status :active, :password "password", :usertype :rental.auth/role-tenant,   :firstname "Ftenant",   :lastname "Ltenant",   :email "test-tenant@email.com",   :address1 "1 Mountain View Dr", :address2 "right hand side of the street", :city "Woodland Park", :state "NJ", :zipcode "07424" }
+   { :username "test-inactive-tenant", :status :inactive, :password "password", :usertype :rental.auth/role-tenant, :firstname "Finactivetenant", :lastname "Ltenant", :email "test-inactive-tenant@email.com",   :address1 "1 Mountain View Dr", :address2 "right hand side of the street", :city "Woodland Park", :state "NJ", :zipcode "07424" }
   ]
 )
 

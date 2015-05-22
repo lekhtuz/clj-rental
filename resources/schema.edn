@@ -110,6 +110,26 @@
   :db/ident :rental.schema.usertype/tenant
  }
 
+ ; Account status attribute - active, inactive
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/status
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc "Account status"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Account status attribute values
+ {
+  :db/id #db/id[:db.part/user]
+  :db/ident :rental.schema.status/active
+ }
+ {
+  :db/id #db/id[:db.part/user]
+  :db/ident :rental.schema.status/inactive
+ }
+
  ; Address line 1 attribute
  {
   :db/id #db/id[:db.part/db]

@@ -37,6 +37,22 @@
   }
 )
 
+; Mapping between application account status and schema account status
+(def status-dbstatus
+  {
+   :active   :rental.schema.status/active
+   :inactive :rental.schema.status/inactive
+  }
+)
+
+(def dbstatus-status (set/map-invert status-dbstatus))
+
+(def status-description
+  {
+   :active   "Active"
+   :inactive "Inactive"
+  }
+)
 ; Mapping between application and database address keys
 (def address-dbaddress
   { 
@@ -175,7 +191,7 @@
 
 (defn convert-map-to-user [m]
   (log/info "convert-map-to-user: m =" m)
-  ; The only reason I test m for nil is because of :usertype. Otherwise an empty map is beautifully generated despite of m being nil.
+  ; The only reason I test m for nil is because of :usertype and :status. Otherwise an empty map is beautifully generated despite of m being nil.
   (if (seq m)
     (dissoc ; cleanup to remove db versions of the attribute keys
       (merge
@@ -186,14 +202,15 @@
           { :last-failed-login last-failed-login }
         )
         {
-         :usertype (-> m ::usertype  usertype-role)
+         :status (-> m ::status dbstatus-status)
+         :usertype (-> m ::usertype usertype-role)
         }
         (if-let [ address (::mailing-address m) ]
           (set/rename-keys (convert-entity-to-map address) dbaddress-address)
         )
         (set/rename-keys m { :db/id :id, ::username :username, ::email :email, ::password :password, ::first-name :first-name, ::last-name :last-name })
       )
-      :rental.schema/usertype :rental.schema/mailing-address :rental.schema/last-successful-login :rental.schema/last-failed-login
+      ::usertype ::mailing-address ::last-successful-login ::last-failed-login
     )
   )
 )
@@ -225,6 +242,7 @@
                merge 
                {
                 :db/id #db/id[:db.part/user]
+                ::status (-> params :status status-dbstatus)
                 ::usertype (-> params :usertype role-usertype)
                 ::username (:username params)
                 ::email (:email params)
@@ -251,8 +269,9 @@
   (log/info "update-last-successful-login: updated")
 )
 
-(defn update-last-failed-login [id]
-  (log/info "update-last-failed-login: id =" id)
-  (transact-data [{:db/id id ::last-failed-login (java.util.Date.)}])
-  (log/info "update-last-failed-login: updated")
+(defn update-last-failed-login [username]
+  (log/info "update-last-failed-login: username =" username)
+  (if-let [user (load-user username)]
+    (transact-data [{:db/id (:id user) ::last-failed-login (java.util.Date.)}])
+  )
 )
