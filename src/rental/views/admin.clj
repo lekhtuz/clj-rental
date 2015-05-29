@@ -72,7 +72,7 @@
        [:tr [:td.left-td-label "First name"][:td (:first-name user)] ]
        [:tr [:td.left-td-label "Last name"][:td (:last-name user)] ]
        (if (:address1 user)
-         [:tr [:td.left-td-label "Address"][:td (str/join ", " [(:address1 user) (:address2 user) (:city user) (:state user) (:zipcode user)])] ]
+         [:tr [:td.left-td-label "Address"][:td (str/join ", " (filter seq [(:address1 user) (:address2 user) (:city user) (:state user) (:zipcode user)]))] ]
        )
        [:tr [:td.left-td-label "Last successful login"][:td (if-let [tt (:last-successful-login user)] (.format date-formatter tt))] ]
        [:tr [:td.left-td-label "Last failed login"][:td (if-let [tt (:last-failed-login user)] (.format date-formatter tt))] ]
