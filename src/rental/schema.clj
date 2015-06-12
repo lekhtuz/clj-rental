@@ -71,21 +71,28 @@
 (def query-load-user '[:find ?e :in $ ?u :where [?e ::username ?u]])
 (def query-load-all-users '[:find ?e :in $ :where [?e ::username _]])
 
+; Print all arguments and return the last one, useful inside -> and ->>
+(defn- spy [& args]
+  (apply prn args)
+  (last args)
+)
+
 ; Retrieve connection every time it is needed. It is cached internally, so it's cheap.
 (defn conn []
   (log/info "conn: Connection request received. Calling d/connect...")
-  (let [c (d/connect uri)]
-    (log/info "conn: Connection retrieved" c)
-    c
-  )
+  (spy "conn: Connection retrieved" (d/connect uri))
 )
 
-(defn db []
+; This is the regular database
+(defn rdb []
   (log/info "db: Database request received. Calling d/db...")
-  (let [d (d/db (conn))]
-    (log/info "db: Database retrieved" d)
-    d
-  )
+  (spy "db: Database retrieved" (d/db (conn)))
+)
+
+; This is the history database
+(defn hdb []
+  (log/info "hdb: History database request received. Calling d/history...")
+  (spy "db: Database retrieved" (d/history rdb))
 )
 
 ; Attribute map added as per https://groups.google.com/forum/#!topic/datomic/aPtVB1ntqIQ
@@ -110,26 +117,28 @@
       (log/info "transact-data: future =" future)
       { :result true, :message "Data successfully transacted." :future future }
     )
-    (catch ExecutionException e 
-      (do
-        (log/info "transact-data: error transacting data " (with-out-str (.printStackTrace e))) 
-        { :result false, :message (.getMessage e), :exception e }
-      )
+    (catch ExecutionException e
+      (log/info "transact-data: error transacting data " (with-out-str (.printStackTrace e))) 
+      { :result false, :message (.getMessage e), :exception e }
     )
   )
 )
 
+; Function returns true, if database was created, schema and setup data successfuly transacted, false if exception was thrown
 (defn create-rental-database []
   (log/info "create-database: uri =" uri)
   (try
     (if (d/create-database uri)
       (do
-        (log/info "create-database: database" uri "created. Adding schema:" schema-tx)
-        (log/info "Connection:" (conn))
-        (transact-data schema-tx)
-        (log/info "Schema added.")
-        (transact-data setup-data-encrypted-passwords-tx)
-        (log/info "Setup data added.")
+        (log/info "create-database: database" uri "created. connection =" (conn) ". Adding schema =" schema-tx)
+        (->> schema-tx
+          transact-data
+          (log/info "Schema added. transaction-result =")
+        )
+        (->> setup-data-encrypted-passwords-tx
+          transact-data
+          (log/info "Setup data added. transaction-result =")
+        )
         true
       )
       (log/info "database" uri "already exists.")
@@ -158,11 +167,11 @@
 (defn run-query 
   ([query]
     (log/info "run-query: query =" query)
-    (d/q query (db))
+    (spy "run-query: result =" (d/q query (rdb)))
   )
   ([query param]
     (log/info "run-query: query =" query ", param =" param)
-    (d/q query (db) param)
+    (spy "run-query: result =" (d/q query (rdb) param))
   )
 )
 
@@ -184,7 +193,7 @@
   ([ids f]
     (log/info "convert-ids-to-maps: ids =" ids ", f =" f)
     (reduce
-      #(conj %1 (f (convert-entity-to-map (d/entity (db) (first %2)))))
+      #(conj %1 (f (convert-entity-to-map (d/entity (rdb) (first %2)))))
       #{} ids) ; change #{} to [] to return vector of maps, to '() to return list of maps
   )
 )
@@ -193,11 +202,11 @@
   (log/info "convert-map-to-user: m =" m)
   ; The only reason I test m for nil is because of :usertype and :status. Otherwise an empty map is beautifully generated despite of m being nil.
   (if (seq m)
-    (dissoc ; cleanup to remove db versions of the attribute keys
-      (merge
-        (if-let [last-successful-login (::last-successful-login m)]
-          { :last-successful-login last-successful-login }
-        )
+    (->
+      (if-let [last-successful-login (::last-successful-login m)]
+        { :last-successful-login last-successful-login }
+      )
+      (merge ; merges all maps into one. nil maps are conveniently ignored.
         (if-let [last-failed-login (::last-failed-login m)]
           { :last-failed-login last-failed-login }
         )
@@ -205,12 +214,14 @@
          :status (-> m ::status dbstatus-status)
          :usertype (-> m ::usertype usertype-role)
         }
-        (if-let [ address (::mailing-address m) ]
+        (if-let [address (::mailing-address m)]
           (set/rename-keys (convert-entity-to-map address) dbaddress-address)
         )
         (set/rename-keys m { :db/id :id, ::username :username, ::email :email, ::password :password, ::first-name :first-name, ::last-name :last-name })
       )
-      ::usertype ::mailing-address ::last-successful-login ::last-failed-login
+      (dissoc ; cleanup to remove db versions of the attribute keys
+        ::usertype ::mailing-address ::last-successful-login ::last-failed-login
+      )
     )
   )
 )
@@ -223,7 +234,12 @@
 (defn load-user [username]
   (log/info "load-user: username =" username)
   (if (seq username)
-    (convert-map-to-user (first (convert-ids-to-maps (run-query query-load-user username))))
+    (->> username
+      (run-query query-load-user)
+      convert-ids-to-maps
+      first
+      convert-map-to-user
+    )
   )
 )
 
