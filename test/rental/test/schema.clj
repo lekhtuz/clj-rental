@@ -43,7 +43,7 @@
   )
 
   (log/info "Waiting 60 seconds for the database name to become available again...")
-  (. Thread sleep 60000)
+  (Thread/sleep 60000)
 
   (testing "Testing create database..."
            (is (create-rental-database))
@@ -98,21 +98,19 @@
   (testing "Testing create-user..."
            (is (nil? (create-user nil)))
 
-           (doseq [ test-user create-user-test-cases]
+           (doseq [test-user create-user-test-cases]
              (log/info "Test user - " test-user)
              (is (create-user test-user))
-             (if-let [retrieved-user (load-user (:username test-user))]
-               (do
-                 (same-user? test-user retrieved-user)
-                 (update-last-successful-login (:id retrieved-user))
-                 (update-last-failed-login (:id retrieved-user))
+             (when-let [retrieved-user (load-user (:username test-user))]
+               (same-user? test-user retrieved-user)
+               (update-last-successful-login (:id retrieved-user))
+               (update-last-failed-login (:username retrieved-user))
                  
-                 (let [{:keys [last-successful-login last-failed-login]} (load-user (:username test-user))]
-                   (log/info "last-successful-login =" (l/to-local-date-time last-successful-login))
-                   (is (not (nil? last-successful-login)))
-                   (log/info "last-failed-login =" (l/to-local-date-time last-failed-login))
-                   (is (not (nil? last-failed-login)))
-                 )
+               (let [{:keys [last-successful-login last-failed-login]} (load-user (:username test-user))]
+                 (log/info "last-successful-login =" (l/to-local-date-time last-successful-login))
+                 (is (not (nil? last-successful-login)))
+                 (log/info "last-failed-login =" (l/to-local-date-time last-failed-login))
+                 (is (not (nil? last-failed-login)))
                )
              )
            )
