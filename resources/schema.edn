@@ -1,4 +1,8 @@
 [
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;;; User Account Attributes
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
  ; Username attribute
  {
   :db/id #db/id[:db.part/db]
@@ -75,6 +79,17 @@
   :db.install/_attribute :db.part/db
  }
 
+ ; Properties that depending on account type are rented to/from others attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/properties
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many
+  :db/isComponent false
+  :db/doc "Properties that depending on account type I rent to/from others"
+  :db.install/_attribute :db.part/db
+ }
+
  ; Mailing address attribute
  {
   :db/id #db/id[:db.part/db]
@@ -130,7 +145,10 @@
   :db/ident :rental.schema.status/inactive
  }
 
- ; Address line 1 attribute
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;;; Address Attributes
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ; Line 1 attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema.address/address1
@@ -140,7 +158,7 @@
   :db.install/_attribute :db.part/db
  }
 
- ; Address line 2 attribute
+ ; Line 2 attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema.address/address2
@@ -150,7 +168,7 @@
   :db.install/_attribute :db.part/db
  }
 
- ; Address city attribute
+ ; City attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema.address/city
@@ -160,7 +178,7 @@
   :db.install/_attribute :db.part/db
  }
 
- ; Address state attribute
+ ; State attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema.address/state
@@ -170,7 +188,7 @@
   :db.install/_attribute :db.part/db
  }
 
- ; Address zip code attribute
+ ; Zip code attribute
  {
   :db/id #db/id[:db.part/db]
   :db/ident :rental.schema.address/zipcode
@@ -179,4 +197,39 @@
   :db/doc "Address zip code"
   :db.install/_attribute :db.part/db
  }
+
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;;; Property Attributes
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ; Address attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/address
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/isComponent true
+  :db/doc "Property address"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Title attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/property-title
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Property title"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Date added attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/date-added
+  :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one
+  :db/doc "Date added"
+  :db.install/_attribute :db.part/db
+ }
+
 ]
