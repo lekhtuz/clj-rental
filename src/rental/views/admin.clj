@@ -9,7 +9,7 @@
   )
 )
 
-(def date-formatter (java.text.SimpleDateFormat. "MM/d/y hh:mm:ss a"))
+(def date-formatter (java.text.SimpleDateFormat. "MM/dd/y hh:mm:ss a"))
 
 (defn home []
   (layout/common
@@ -65,6 +65,7 @@
     [:br]
     (if-let [user (schema/load-user username)]
       [:table
+       [:tr [:td.section-header {:colspan "2"} "General information"]]
        [:tr [:td.left-td-label "Username"][:td (:username user)] ]
        [:tr [:td.left-td-label "Userid"][:td (:id user)] ]
        [:tr [:td.left-td-label "Status"][:td (-> user :status schema/status-description)] ]
@@ -72,20 +73,22 @@
        [:tr [:td.left-td-label "First name"][:td (:first-name user)] ]
        [:tr [:td.left-td-label "Last name"][:td (:last-name user)] ]
        (if (:address1 user)
-         [:tr [:td.left-td-label "Address"][:td (str/join ", " (filter seq [(:address1 user) (:address2 user) (:city user) (:state user) (:zipcode user)]))] ]
+         [:tr [:td.left-td-label "Mailing address"][:td (str/join ", " (filter seq [(:address1 user) (:address2 user) (:city user) (:state user)])) " " (:zipcode user)] ]
        )
        [:tr [:td.left-td-label "Last successful login"][:td (if-let [tt (:last-successful-login user)] (.format date-formatter tt))] ]
        [:tr [:td.left-td-label "Last failed login"][:td (if-let [tt (:last-failed-login user)] (.format date-formatter tt))] ]
+       [:tr [:td.section-header {:colspan "2"} "Login history"]]
        [:tr 
         [:td {:colspan "2"}
          (h-e/link-to (str "/admin/useredit/" (:username user)) "[&nbsp;Edit&nbsp;]")
+         "&nbsp;"
          (h-e/link-to (str "/admin/userhistory/" (:username user)) "[&nbsp;History&nbsp;]")
+         "&nbsp;"
+         (h-e/link-to "/admin" "[&nbsp;Back to the user list&nbsp;]")
         ]
        ]
       ]
       [:h1 "User does not exist"]
     )
-    
-    (h-e/link-to "/admin" "Back to the user list")
   )
 )
