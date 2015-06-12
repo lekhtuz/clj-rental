@@ -34,6 +34,13 @@ h1 {
 }
 
 .bordered {
-    border-collapse: collapse;
-    border: 1px solid black;
+	border-collapse: collapse;
+	border: 1px solid black;
 }
+
+.section-header {
+	text-align: center;
+	font-weight: bold;
+	font-size: 14px
+}
+
