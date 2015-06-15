@@ -10,8 +10,7 @@
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "Username"
-  :db/unique :db.unique/value
-  :db/index true
+  :db/unique :db.unique/identity
   :db.install/_attribute :db.part/db
  }
 
@@ -22,8 +21,7 @@
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "Email address"
-  :db/unique :db.unique/value
-  :db/index true
+  :db/unique :db.unique/identity
   :db.install/_attribute :db.part/db
  }
 
@@ -59,26 +57,6 @@
   :db.install/_attribute :db.part/db
  }
 
- ; Last successful login attribute
- {
-  :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema/last-successful-login
-  :db/valueType :db.type/instant
-  :db/cardinality :db.cardinality/one
-  :db/doc "Last successful login date"
-  :db.install/_attribute :db.part/db
- }
-
- ; Last failed login attribute
- {
-  :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema/last-failed-login
-  :db/valueType :db.type/instant
-  :db/cardinality :db.cardinality/one
-  :db/doc "Last failed login date"
-  :db.install/_attribute :db.part/db
- }
-
  ; Properties that depending on account type are rented to/from others attribute
  {
   :db/id #db/id[:db.part/db]
@@ -87,6 +65,17 @@
   :db/cardinality :db.cardinality/many
   :db/isComponent false
   :db/doc "Properties that depending on account type I rent to/from others"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Login attempts attribute
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema/login-attempts
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/many
+  :db/isComponent true
+  :db/doc "Login attempts"
   :db.install/_attribute :db.part/db
  }
 
@@ -199,12 +188,55 @@
  }
 
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ;;; Login Attempt Attributes
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ ; Timestamp
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema.login-attempt/timestamp
+  :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one
+  :db/doc "Last successful login date"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Success or failure
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema.login-attempt/result
+  :db/valueType :db.type/ref
+  :db/cardinality :db.cardinality/one
+  :db/doc "Login attempt result"
+  :db.install/_attribute :db.part/db
+ }
+
+ ; Success or failure attribute values
+ {
+  :db/id #db/id[:db.part/user]
+  :db/ident :rental.schema.login-attempt.result/success
+ }
+ {
+  :db/id #db/id[:db.part/user]
+  :db/ident :rental.schema.login-attempt.result/failure
+ }
+
+ ; IP Address
+ {
+  :db/id #db/id[:db.part/db]
+  :db/ident :rental.schema.login-attempt/ip-address
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/one
+  :db/doc "Login attempt IP address"
+  :db.install/_attribute :db.part/db
+ }
+
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ;;; Property Attributes
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ; Address attribute
  {
   :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema/address
+  :db/ident :rental.schema.property/address
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/one
   :db/isComponent true
@@ -215,7 +247,7 @@
  ; Title attribute
  {
   :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema/property-title
+  :db/ident :rental.schema.property/title
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "Property title"
@@ -225,7 +257,7 @@
  ; Date added attribute
  {
   :db/id #db/id[:db.part/db]
-  :db/ident :rental.schema/date-added
+  :db/ident :rental.schema.property/date-added
   :db/valueType :db.type/instant
   :db/cardinality :db.cardinality/one
   :db/doc "Date added"

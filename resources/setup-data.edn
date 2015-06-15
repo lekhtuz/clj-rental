@@ -18,6 +18,13 @@
                                    :rental.schema.address/state "DC"
                                    :rental.schema.address/zipcode "20500"
                                    }
+  :rental.schema/login-attempts [
+                                 {
+                                  :rental.schema.login-attempt/timestamp #inst "2015-06-01T15:55:13.217-00:00"
+                                  :rental.schema.login-attempt/result :rental.schema.login-attempt.result/success
+                                  :rental.schema.login-attempt/ip-address "1.1.1.1"
+                                 }
+                                ]
  }
 
  ; Demo accounts
