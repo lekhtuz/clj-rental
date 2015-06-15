@@ -109,13 +109,15 @@ d/transact returns a future map with the following fields:
 
 (def results (q '[:find ?tx ?v ?op :in $ ?e ?attr :where [?e ?attr ?v ?tx ?op]] hdb 17592186045423 :rental.schema/last-successful-login))
 ; returns history of changes for the entity/attribute. ?op can be replaced with true, since we are not interested in retractions
-; returned id is the transaction id. It has only 2 attributed - :db/id and :db/txInstant
+; the first value is the transaction id. It is an entity with only 2 attributed - :db/id and :db/txInstant
 
 (println results)
 #<HashSet [[13194139534343 #inst "2015-06-05T21:13:53.422-00:00" true], [13194139534344 #inst "2015-06-05T21:34:04.822-00:00" true], [13194139534344 #inst "2015-06-05T21:13:53.422-00:00" false]]>
 
 (def results (d/q '[:find ?tx ?a :in $ ?e :where [?e ?a _ ?tx]] hdb 17592186045423))
 ; Finds all tuples of the tx and the actual attribute that changed for a specific entity.
+; The first value is the transaction id. It is an entity with only 2 attributed - :db/id and :db/txInstant
+; The second value is the numeric representation of the attribute (probably)
 
 (println results)
 #{[13194139534318 64] [13194139534318 63] [13194139534318 66] [13194139534318 65] [13194139534318 67] [13194139534318 72] [13194139534318 71] [13194139534344 68] [13194139534318 73] [13194139534343 68]}
