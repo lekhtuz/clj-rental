@@ -70,6 +70,7 @@
 ; Queries defined here
 (def query-load-user '[:find ?e :in $ ?u :where [?e ::username ?u]])
 (def query-load-all-users '[:find ?e :in $ :where [?e ::username _]])
+(def query-attribute-history '[:find ?v in $ ?e ?attr :where [?e ?attr ?v _ true]])
 
 ; Print all arguments and return the last one, useful inside -> and ->>
 (defn- spy [& args]
@@ -164,6 +165,7 @@
   )
 )
 
+; Run query on the reqular database
 (defn run-query 
   ([query]
     (log/info "run-query: query =" query)
@@ -175,11 +177,42 @@
   )
 )
 
+; Run query on the history database
+(defn run-history-query 
+  ([query]
+    (log/info "run-history-query: query =" query)
+    (spy "run-history-query: result =" (d/q query (hdb)))
+  )
+  ([query param1 param2]
+    (log/info "run-history-query: query =" query ", param1 =" param1 ", param2 =" param2)
+    (spy "run-history-query: result =" (d/q query (hdb) param1 param2))
+  )
+)
+
+; Load attribute history
+(defn load-attribute-history [entity-id attribute-id]
+  (log/info "load-attribute-history: entity-id =" entity-id ", attribute-id =" attribute-id)
+  (reduce #(conj %1 [(:db/txInstant %2) (%2 1)]) (run-history-query entity-id attribute-id))
+)
+
+; Check if the passed object is a Datomic entity
+(defn datomic-entity? [o]
+  (instance? datomic.Entity o)
+)
+
 ; Convert a Datomic entity to a map, where keys correspond to the database attribute keys
-(defn convert-entity-to-map [ent]
+(declare convert-ids-to-maps) ; need this forward declaration due to recursive calls
+(defn convert-entity-to-map [db ent]
   (log/info "convert-entity-to-map: ent =" ent ", (keys ent) =" (keys ent))
   (reduce
-    #(assoc %1 %2 (%2 ent))
+    #(assoc %1 %2
+            (let [value (%2 ent)]
+              (if (set? value)
+                (if (every? datomic-entity? value) (convert-ids-to-maps db value) value)
+                (if (datomic-entity? value) (convert-entity-to-map db value) value)
+              )
+            )
+     )
     {:db/id (:db/id ent)} (keys ent)
   )
 )
@@ -187,24 +220,24 @@
 ; Convert set of single element vectors #{ [id1] [id2]...} as returned by run-query to a set/vector/list of maps, where keys correspond to the database attribute keys
 ; Further single element conversion is performed by the optional function parameter
 (defn convert-ids-to-maps 
-  ([ids]
-    (convert-ids-to-maps ids (fn [param] param))
+  ([db ids]
+    (convert-ids-to-maps db ids (fn [param] param))
   )
-  ([ids f]
+  ([db ids f]
     (log/info "convert-ids-to-maps: ids =" ids ", f =" f)
     (reduce
-      #(conj %1 (f (convert-entity-to-map (d/entity (rdb) (first %2)))))
+      #(conj %1 (f (convert-entity-to-map db (d/entity db (first %2)))))
       #{} ids) ; change #{} to [] to return vector of maps, to '() to return list of maps
   )
 )
 
-(defn convert-map-to-user [m]
-  (log/info "convert-map-to-user: m =" m)
+(defn convert-map-to-user [db m]
+  (log/info "convert-map-to-user: m =" (with-out-str (pprint m)))
   ; The only reason I test m for nil is because of :usertype and :status. Otherwise an empty map is beautifully generated despite of m being nil.
   (if (seq m)
     (->
-      (if-let [last-successful-login (::last-successful-login m)]
-        { :last-successful-login last-successful-login }
+      (if-let [last-successful-login (::login-attempts m)]
+        { :login-attempts (convert-ids-to-maps db (::login-attempts m))}
       )
       (merge ; merges all maps into one. nil maps are conveniently ignored.
         (if-let [last-failed-login (::last-failed-login m)]
@@ -215,7 +248,7 @@
          :usertype (-> m ::usertype usertype-role)
         }
         (if-let [address (::mailing-address m)]
-          (set/rename-keys (convert-entity-to-map address) dbaddress-address)
+          (set/rename-keys (convert-entity-to-map db address) dbaddress-address)
         )
         (set/rename-keys m { :db/id :id, ::username :username, ::email :email, ::password :password, ::first-name :first-name, ::last-name :last-name })
       )
@@ -226,9 +259,9 @@
   )
 )
 
-(defn convert-ids-to-users [ids]
+(defn convert-ids-to-users [db ids]
   (log/info "convert-ids-to-users: ids =" ids)
-  (convert-ids-to-maps ids convert-map-to-user)
+  (convert-ids-to-maps db ids convert-map-to-user)
 )
 
 (defn load-user [username]
@@ -236,16 +269,19 @@
   (if (seq username)
     (->> username
       (run-query query-load-user)
-      convert-ids-to-maps
+      (convert-ids-to-maps (rdb))
       first
-      convert-map-to-user
+      (convert-map-to-user (rdb))
     )
   )
 )
 
 (defn load-all-users []
   (log/info "load-all-users: started")
-  (convert-ids-to-users (run-query query-load-all-users))
+  (convert-ids-to-users (rdb) (run-query query-load-all-users))
+)
+
+(defn load-login-history [] 1
 )
 
 (defn create-user [params]
@@ -279,15 +315,31 @@
   )
 )
 
-(defn update-last-successful-login [id]
+(defn update-last-successful-login [id ip-address]
   (log/info "update-last-successful-login: id =" id)
-  (transact-data [{:db/id id ::last-successful-login (java.util.Date.)}])
+  (transact-data [{:db/id id ::login-attempts
+                   {
+                    :rental.schema.login-attempt/timestamp (java.util.Date.)
+                    :rental.schema.login-attempt/result :rental.schema.login-attempt.result/success
+;                    :rental.schema.login-attempt/ip-address ip-address
+                   }
+                  }
+                 ]
+  )
   (log/info "update-last-successful-login: updated")
 )
 
-(defn update-last-failed-login [username]
+(defn update-last-failed-login [username ip-address]
   (log/info "update-last-failed-login: username =" username)
   (if-let [user (load-user username)]
-    (transact-data [{:db/id (:id user) ::last-failed-login (java.util.Date.)}])
+    (transact-data [{:db/id (:id user) ::login-attempts
+                     {
+                      :rental.schema.login-attempt/timestamp (java.util.Date.)
+                      :rental.schema.login-attempt/result :rental.schema.login-attempt.result/failure
+;                      :rental.schema.login-attempt/ip-address ip-address
+                     }
+                    }
+                   ]
+    )
   )
 )

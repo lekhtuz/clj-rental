@@ -103,8 +103,8 @@
              (is (create-user test-user))
              (when-let [retrieved-user (load-user (:username test-user))]
                (same-user? test-user retrieved-user)
-               (update-last-successful-login (:id retrieved-user))
-               (update-last-failed-login (:username retrieved-user))
+               (update-last-successful-login (:id retrieved-user) "1.1.1.1")
+               (update-last-failed-login (:username retrieved-user) "2.2.2.2")
                  
                (let [{:keys [last-successful-login last-failed-login]} (load-user (:username test-user))]
                  (log/info "last-successful-login =" (l/to-local-date-time last-successful-login))
