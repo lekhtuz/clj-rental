@@ -11,41 +11,37 @@ You will need [Leiningen][1] 1.7.0 or above installed.
 ## Running
 
 To start a web server for the application, run:
-
     lein ring server
 
 Create uberwar:
-lein ring uberwar
+    lein ring uberwar
 
 Remove all attributes from web.xml <webapp> tag before copying to resin/webapps folder
 
 Connect to repl:
-lein repl :connect localhost:3001
+    lein repl :connect localhost:3001
 
 ## License
 
 Copyright © 2015 FIXME
 
 ## Git commands
-
-git init
-git add --all *
-git commit -m "first commit"
-git remote add -m dev origin https://github.com/lekhtuz/rental.git
-git branch --set-upstream-to=origin/dev master
-git push origin HEAD:dev
+    git init
+    git add --all *
+    git commit -m "first commit"
+    git remote add -m dev origin https://github.com/lekhtuz/rental.git
+    git branch --set-upstream-to=origin/dev master
+    git push origin HEAD:dev
 
 
 ## Datomic commands:
-
-cd /Users/lekhdm/java/datomic-pro-0.9.5130
-bin/transactor ./config/samples/dev-transactor-template.properties
-bin/console -p 8081 dev datomic:dev://localhost:4334
+    cd /Users/lekhdm/java/datomic-pro-0.9.5130
+    bin/transactor ./config/samples/dev-transactor-template.properties
+    bin/console -p 8081 dev datomic:dev://localhost:4334
 
 ## Datomic connection test
-
-https://groups.google.com/forum/#!topic/datomic/1WBgM84nKmc
-Can not delete and immediately create database, name is not available for 1 minute.
+    https://groups.google.com/forum/#!topic/datomic/1WBgM84nKmc
+    Can not delete and immediately create database, name is not available for 1 minute.
 
 d/transact returns a future map with the following fields:
 :db-before Datomic.db.DB
